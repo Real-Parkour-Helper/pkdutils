@@ -1,5 +1,6 @@
 import { InstantConnectProxy } from "prismarine-proxy"
 import { PacketMeta, ServerClient, Client } from "minecraft-protocol"
+import { Logger } from "../util/Logger"
 
 /**
  * Proxy class
@@ -38,7 +39,6 @@ export class Proxy {
       toServer.write(meta.name, data)
     })
 
-    // TODO: Implement a logger and use that instead of console.log everywhere
-    console.log("Proxy started, listening on port 25565")
+    Logger.info(`Proxy started! Listening on port 25565.`)
   }
 }
