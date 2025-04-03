@@ -82,7 +82,7 @@ jobs:
 
       - name: Create standalone executable
         run: |
-          bun build --compile --outfile=pkdutils-${{ matrix.platform }}${{ matrix.extension }} ./src/index.ts
+          bun build --compile --assets=node_modules/minecraft-packets/minecraft-packets/data --outfile=pkdutils-${{ matrix.platform }}${{ matrix.extension }} ./src/index.ts
 
       - name: Set executable permissions (non-Windows)
         if: matrix.os != 'windows-latest'
