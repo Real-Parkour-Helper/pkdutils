@@ -1,0 +1,21 @@
+{
+  "name": "pkdutils",
+  "version": "0.1.0",
+  "description": "Local proxy to provide utils for improved parkour duels gameplay",
+  "homepage": "https://github.com/Real-Parkour-Helper/pkdutils#readme",
+  "bugs": {
+    "url": "https://github.com/Real-Parkour-Helper/pkdutils/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Real-Parkour-Helper/pkdutils.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc && node build/index.js"
+  }
+}
