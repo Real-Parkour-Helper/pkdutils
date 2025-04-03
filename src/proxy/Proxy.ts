@@ -1,6 +1,7 @@
 import { InstantConnectProxy } from "prismarine-proxy"
 import { PacketMeta, ServerClient, Client } from "minecraft-protocol"
 import { Logger } from "../util/Logger"
+import { favicon } from "./favicon"
 
 /**
  * Proxy class
@@ -18,9 +19,9 @@ export class Proxy {
         port: 25565,
         version: "1.8.9", // we can remove this when version independent stuff works
         validateChannelProtocol: false,
-        motd: "PKD Utils Proxy", // TODO: Make this look nicer (cool colors :D)
+        motd: "§9§lWe promise, the blocks (probably) won't move",
         maxPlayers: 1,
-        // TODO: Make a favicon? base64 string of an image
+        favicon
       },
       clientOptions: {
         version: "1.8.9",
