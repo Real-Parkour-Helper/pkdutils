@@ -2,6 +2,8 @@ import { InstantConnectProxy } from "prismarine-proxy"
 import { PacketMeta, ServerClient, Client } from "minecraft-protocol"
 import { Logger } from "../util/Logger"
 import { favicon } from "./favicon"
+import { PacketInterceptor } from "./packet/PacketInterceptor"
+import { Packet } from "./packet/Packet"
 
 /**
  * Proxy class
@@ -10,6 +12,7 @@ import { favicon } from "./favicon"
  */
 export class Proxy {
   private proxy: InstantConnectProxy
+  private interceptors: PacketInterceptor[] = []
 
   constructor() {
     this.proxy = new InstantConnectProxy({
@@ -29,17 +32,43 @@ export class Proxy {
       },
     })
 
+    this.registerInterceptors()
+
     this.proxy.on("incoming", (data: any, meta: PacketMeta, toClient: ServerClient, toServer: Client) => {
       // Forward all packets to the client
       // This is where we'll add our packet handlers later
-      toClient.write(meta.name, data)
+      let packet = new Packet(meta, data, toClient, toServer)
+      for (const interceptor of this.interceptors) {
+        packet = interceptor.incomingPacket(packet)
+      }
+
+      if (!packet.cancelled) {
+        toClient.write(meta.name, data)
+      }
     })
 
     this.proxy.on("outgoing", (data: any, meta: PacketMeta, toClient: ServerClient, toServer: Client) => {
       // Forward all packets to the server
-      toServer.write(meta.name, data)
+      let packet = new Packet(meta, data, toClient, toServer)
+      for (const interceptor of this.interceptors) {
+        packet = interceptor.outgoingPacket(packet)
+      }
+
+      if (!packet.cancelled) {
+        toServer.write(meta.name, data)
+      }
     })
 
     Logger.info(`Proxy started! Listening on port 25565.`)
+  }
+
+  /**
+   * Registers the interceptors the proxy should use.
+   * @private
+   */
+  private registerInterceptors() {
+    this.interceptors.push(...[
+      // Create the interceptors here
+    ])
   }
 }
