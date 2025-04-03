@@ -111,7 +111,9 @@ jobs:
       - name: Prepare binaries for release
         run: |
           mkdir -p dist
-          find ./artifacts -type f -exec cp {} dist/ \;
+          find ./artifacts -type f -name "pkdutils-windows.exe" -exec cp {} dist/ \;
+          find ./artifacts -type f -name "pkdutils-linux" -exec cp {} dist/ \;
+          find ./artifacts -type f -name "pkdutils-macos" -exec cp {} dist/ \;
           ls -la dist/
 
       - name: Semantic Release

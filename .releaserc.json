@@ -13,7 +13,14 @@
     [
       "@semantic-release/github",
       {
-        "assets": [{ "path": "pkdutils", "label": "PKDUtils Executable" }]
+        "assets": [
+          {
+            "path": "dist/pkdutils-windows.exe",
+            "label": "PKDUtils for Windows"
+          },
+          { "path": "dist/pkdutils-linux", "label": "PKDUtils for Linux" },
+          { "path": "dist/pkdutils-macos", "label": "PKDUtils for macOS" }
+        ]
       }
     ],
     [
