@@ -19,7 +19,7 @@ export class Proxy {
         port: 25565,
         version: "1.8.9", // we can remove this when version independent stuff works
         validateChannelProtocol: false,
-        motd: "§9§lWe promise, the blocks (probably) won't move",
+        motd: "§9We promise, the blocks §lprobably§r§9 won't move",
         maxPlayers: 1,
         favicon
       },
