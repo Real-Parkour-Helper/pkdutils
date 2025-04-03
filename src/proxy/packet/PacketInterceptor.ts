@@ -1,4 +1,5 @@
 import { Packet } from "./Packet"
+import { Logger } from "../../util/Logger"
 
 /**
  * A PacketInterceptor receives all incoming / outgoing packets
@@ -6,9 +7,12 @@ import { Packet } from "./Packet"
  */
 export abstract class PacketInterceptor {
   protected _name: string
+  protected _version: string
 
-  constructor(name: string) {
+  protected constructor(name: string, version: string) {
     this._name = name
+    this._version = version
+    Logger.info(`${name} v${version} instantiated!`)
   }
 
   /**
