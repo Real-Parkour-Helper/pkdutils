@@ -22,16 +22,14 @@ export class Logger {
   }
 
   static warn(...args: any[]) {
-    console.warn(yellow(`[${this.timestamp()}] [WARN]`, ...args))
+    console.warn(bold(yellow(`[${this.timestamp()}] [WARN]`, ...args)))
   }
 
   static error(...args: any[]) {
-    console.error(red(`[${this.timestamp()}] [ERROR]`, ...args))
+    console.error(bold(red(`[${this.timestamp()}] [ERROR]`, ...args)))
   }
 
   static debug(...args: any[]) {
-    if (process.env.DEBUG === "true") {
-      console.debug(magenta(`[${this.timestamp()}] [DEBUG]`, ...args))
-    }
+    console.debug(bold(magenta(`[${this.timestamp()}] [DEBUG]`, ...args)))
   }
 }
