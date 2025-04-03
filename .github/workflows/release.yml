@@ -1,0 +1,121 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # TODO: this is for whenever we have tests
+  # test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+
+  #     - name: Setup environment
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "20"
+  #         cache: "npm"
+
+  #     - name: Install dependencies
+  #       run: npm ci
+
+  #     - name: Run tests
+  #       run: npm test --reporters=jest-junit
+
+  #     - name: Test Report
+  #       uses: dorny/test-reporter@v2
+  #       if: success() || failure()
+  #       with:
+  #         name: Jest Tests
+  #         path: junit.xml # or your test output file
+  #         reporter: jest-junit
+
+  #     - name: Upload test results
+  #       uses: actions/upload-artifact@v4
+  #       if: always()
+  #       with:
+  #         name: test-results
+  #         path: |
+  #           coverage/
+  #           junit.xml
+  #         retention-days: 7
+
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            extension: ""
+          - os: windows-latest
+            platform: windows
+            extension: ".exe"
+          - os: macos-latest
+            platform: macos
+            extension: ""
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Create standalone executable
+        run: |
+          bun build --compile --outfile=pkdutils-${{ matrix.platform }}${{ matrix.extension }} ./src/index.ts
+
+      - name: Set executable permissions (non-Windows)
+        if: matrix.os != 'windows-latest'
+        run: chmod +x pkdutils-${{ matrix.platform }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pkdutils-${{ matrix.platform }}
+          path: pkdutils-${{ matrix.platform }}${{ matrix.extension }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Prepare binaries for release
+        run: |
+          mkdir -p dist
+          find ./artifacts -type f -exec cp {} dist/ \;
+          ls -la dist/
+
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          extra_plugins: |
+            @semantic-release/git
+            @semantic-release/changelog
