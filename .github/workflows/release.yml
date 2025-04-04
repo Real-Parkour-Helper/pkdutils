@@ -75,14 +75,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
       - name: Create standalone executable
         run: |
-          bun build --compile --assets=node_modules/minecraft-packets/minecraft-packets/data --outfile=pkdutils-${{ matrix.platform }}${{ matrix.extension }} ./src/index.ts
+          npm install -g pkg
+          npm run compile pkdutils-${{ matrix.platform }}${{ matrix.extension }}
 
       - name: Set executable permissions (non-Windows)
         if: matrix.os != 'windows-latest'
@@ -92,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pkdutils-${{ matrix.platform }}
-          path: pkdutils-${{ matrix.platform }}${{ matrix.extension }}
+          path: dist/pkdutils-${{ matrix.platform }}${{ matrix.extension }}
 
   release:
     needs: build
