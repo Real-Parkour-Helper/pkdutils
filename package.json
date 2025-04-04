@@ -18,7 +18,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc && node build/index.js",
-    "compile": "tsc && node compile.js"
+    "compile": "tsc && node compile.js",
+    "postinstall": "node patch-dependencies.js"
   },
   "pkg": {
     "scripts": "build/**/*.js",
