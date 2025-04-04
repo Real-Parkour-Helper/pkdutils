@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.1.0...v1.2.0) (2025-04-04)
+
+
+### Bug Fixes
+
+* remake package-lock.json ([061019d](https://github.com/Real-Parkour-Helper/pkdutils/commit/061019d525241ac7c292ce53105beb2eda62b279))
+
+
+### Features
+
+* compile script using pkg ([fcde23f](https://github.com/Real-Parkour-Helper/pkdutils/commit/fcde23ff8078931a535d6c19b70a853a75e71b7f))
+
 # [1.1.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.0.0...v1.1.0) (2025-04-03)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "pkdutils",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Local proxy to provide utils for improved parkour duels gameplay",
   "homepage": "https://github.com/Real-Parkour-Helper/pkdutils#readme",
   "bugs": {
@@ -22,7 +22,9 @@
   },
   "pkg": {
     "scripts": "build/**/*.js",
-    "targets": ["host"],
+    "targets": [
+      "host"
+    ],
     "assets": [
       "node_modules/minecraft-packets/minecraft-packets/**/*"
     ]
