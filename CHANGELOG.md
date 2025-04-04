@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.3.0...v1.3.1) (2025-04-04)
+
+
+### Bug Fixes
+
+* forgort to write to file after fixing instant connect proxy ([4cc7fb2](https://github.com/Real-Parkour-Helper/pkdutils/commit/4cc7fb2892a4888db92132d0b71004a6f8a3f7a5))
+
 # [1.3.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.2.0...v1.3.0) (2025-04-04)
 
 
