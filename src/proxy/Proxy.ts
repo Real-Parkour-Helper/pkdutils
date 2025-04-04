@@ -4,6 +4,7 @@ import { Logger } from "../util/Logger"
 import { favicon } from "./favicon"
 import { PacketInterceptor } from "./packet/PacketInterceptor"
 import { Packet } from "./packet/Packet"
+import { World } from "./modules/World"
 
 /**
  * Proxy class
@@ -69,6 +70,7 @@ export class Proxy {
   private registerInterceptors() {
     this.interceptors.push(...[
       // Create the interceptors here
+      new World()
     ])
   }
 }
