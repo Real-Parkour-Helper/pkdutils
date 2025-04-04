@@ -7,16 +7,16 @@ import { Client, PacketMeta, ServerClient } from "minecraft-protocol"
 export class Packet {
   private readonly _meta: PacketMeta
   private _data: any
-  private toClient: ServerClient
-  private toServer: Client
+  private readonly _toClient: ServerClient
+  private readonly _toServer: Client
 
   private _cancelled = false
 
   constructor(meta: PacketMeta, data: any, toClient: ServerClient, toServer: Client) {
     this._meta = meta
     this._data = data
-    this.toClient = toClient
-    this.toServer = toServer
+    this._toClient = toClient
+    this._toServer = toServer
   }
 
   get meta(): PacketMeta {
@@ -25,6 +25,14 @@ export class Packet {
 
   get data(): any {
     return this._data
+  }
+
+  get toClient(): ServerClient {
+    return this._toClient
+  }
+
+  get toServer(): Client {
+    return this._toServer
   }
 
   get cancelled() {
