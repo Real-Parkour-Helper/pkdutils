@@ -1,3 +1,12 @@
+# [1.5.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.4.0...v1.5.0) (2025-04-05)
+
+
+### Features
+
+* a miserable attempt at aligning numbers on the scoreboard ([592d599](https://github.com/Real-Parkour-Helper/pkdutils/commit/592d5999547ce849804e9801ba696fc09979af26))
+* parse checkpoint info from the chat ([42d0e43](https://github.com/Real-Parkour-Helper/pkdutils/commit/42d0e43c15b82e230e2ed86b8d613a15622e1d18))
+* send new scoreboard to the client ([27da16d](https://github.com/Real-Parkour-Helper/pkdutils/commit/27da16ddfcf81e07167e47195af08c158e36646f))
+
 # [1.4.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.3.1...v1.4.0) (2025-04-05)
 
 
