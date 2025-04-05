@@ -1,3 +1,16 @@
+# [1.4.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.3.1...v1.4.0) (2025-04-05)
+
+
+### Bug Fixes
+
+* make toClient and toServer getters for the Packet class ([8296c91](https://github.com/Real-Parkour-Helper/pkdutils/commit/8296c913ac35226013d8236c496646623fee741b))
+
+
+### Features
+
+* create world tracking packet interceptor (doesn't do anything yet though) ([d74253c](https://github.com/Real-Parkour-Helper/pkdutils/commit/d74253c66657136a54fb31da8028e3fd5c7f93a9))
+* track loaded chunks and provide easy access using world coordinates ([ed56d7a](https://github.com/Real-Parkour-Helper/pkdutils/commit/ed56d7a45c1919e770c66bf0fce01766b87f3882))
+
 ## [1.3.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.3.0...v1.3.1) (2025-04-04)
 
 
