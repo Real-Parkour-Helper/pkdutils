@@ -33,6 +33,7 @@
   "dependencies": {
     "chalk": "4.1.2",
     "minecraft-protocol": "^1.55.0",
+    "prismarine-chunk": "^1.38.1",
     "prismarine-proxy": "^1.1.4"
   },
   "devDependencies": {
