@@ -145,6 +145,11 @@ export class SplitScoreboard extends PacketInterceptor {
   }
 
   incomingPacket(packet: Packet): Packet {
+    if (packet.meta.name === "respawn") {
+      this.clearCheckpoints();
+      return packet;
+    }
+
     if (packet.meta.name === "chat") {
       let text = this.constructChatMessage(packet.data.message);
 
