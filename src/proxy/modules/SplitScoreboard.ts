@@ -84,7 +84,7 @@ export class SplitScoreboard extends PacketInterceptor {
       if (!used[firstPlayer.player]) {
         realScoreboard.push({
           player: firstPlayer.player,
-          value: `#${checkpoint}`,
+          value: `${checkpoint}`,
         });
         used[firstPlayer.player] = true;
       }
@@ -118,12 +118,22 @@ export class SplitScoreboard extends PacketInterceptor {
         state: states.PLAY,
       };
 
+      let prefix: string;
+      let suffix: string = `§e${scoreboard[i].value}`.padStart(16);
+      if (scoreboard[i].player == "You") {
+        prefix = `§a${i + 1}. §a${scoreboard[i].player}`.padEnd(16);
+      } else {
+        prefix = `§a${i + 1}. §7${scoreboard[i].player}`
+          .substring(0, 16)
+          .padEnd(16);
+      }
+
       let data = {
         team: `team_${9 - i}`,
         mode: 2,
         name: `team_${9 - i}`,
-        prefix: `§${i + 1}. §7${scoreboard[i].player}`,
-        suffix: `$: §e${scoreboard[i].value}`,
+        prefix: prefix,
+        suffix: suffix,
         friendlyFire: 3,
         nameTagVisibility: "always",
         color: 15,
@@ -156,6 +166,17 @@ export class SplitScoreboard extends PacketInterceptor {
       this.sendScoreboard(scoreboard, packet.toClient);
 
       return packet;
+    } else if (packet.meta.name === "scoreboard_team") {
+      if (
+        packet.data.team &&
+        /^team_[2-9]$/.test(packet.data.team) &&
+        packet.data.suffix &&
+        packet.data.suffix.includes("#")
+      ) {
+        packet.cancelled = true;
+      }
+
+      return packet;
     }
 
     return packet;
@@ -175,7 +196,7 @@ export class SplitScoreboard extends PacketInterceptor {
 
     const tenths = Math.floor(milliseconds / 100);
 
-    return `$+${seconds}.${tenths}`;
+    return `+${seconds}.${tenths}`;
   }
 
   clearCheckpoints() {
