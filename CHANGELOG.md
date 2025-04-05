@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.5.0...v1.5.1) (2025-04-05)
+
+
+### Bug Fixes
+
+* clear checkpoint data on respawn ([ddd7660](https://github.com/Real-Parkour-Helper/pkdutils/commit/ddd76609f02368303822476262e9d450e172f254))
+
 # [1.5.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.4.0...v1.5.0) (2025-04-05)
 
 
