@@ -1,3 +1,4 @@
+import { Client, PacketMeta, ServerClient, states } from "minecraft-protocol";
 import { Logger } from "../../util/Logger";
 import { Packet } from "../packet/Packet";
 import { PacketInterceptor } from "../packet/PacketInterceptor";
@@ -62,6 +63,77 @@ export class SplitScoreboard extends PacketInterceptor {
     return fullText;
   }
 
+  private updateScoreboard(
+    scoreboardMap: CheckpointMap,
+  ): { player: string; value: string }[] {
+    let used: { [player: string]: boolean } = {};
+    let realScoreboard: { player: string; value: string }[] = [];
+
+    const checkpoints = Object.keys(scoreboardMap)
+      .map(Number)
+      .sort((a, b) => b - a);
+
+    for (const checkpoint of checkpoints) {
+      const playersAtCheckpoint = [...scoreboardMap[checkpoint]];
+
+      if (playersAtCheckpoint.length === 0) continue;
+
+      const firstPlayer = playersAtCheckpoint[0];
+      const firstPlayerTime = firstPlayer.time;
+
+      if (!used[firstPlayer.player]) {
+        realScoreboard.push({
+          player: firstPlayer.player,
+          value: `#${checkpoint}`,
+        });
+        used[firstPlayer.player] = true;
+      }
+
+      for (let i = 1; i < playersAtCheckpoint.length; i++) {
+        const playerData = playersAtCheckpoint[i];
+
+        if (used[playerData.player]) continue;
+
+        const timeDiff = playerData.time - firstPlayerTime;
+
+        realScoreboard.push({
+          player: playerData.player,
+          value: this.formatTimeDiff(timeDiff),
+        });
+
+        used[playerData.player] = true;
+      }
+    }
+
+    return realScoreboard;
+  }
+
+  private sendScoreboard(
+    scoreboard: { player: string; value: string }[],
+    toClient: ServerClient,
+  ): void {
+    for (let i = 0; i < scoreboard.length; i++) {
+      let meta: PacketMeta = {
+        name: "scoreboard_team",
+        state: states.PLAY,
+      };
+
+      let data = {
+        team: `team_${9 - i}`,
+        mode: 2,
+        name: `team_${9 - i}`,
+        prefix: `§${i + 1}. §7${scoreboard[i].player}`,
+        suffix: `$: §e${scoreboard[i].value}`,
+        friendlyFire: 3,
+        nameTagVisibility: "always",
+        color: 15,
+        players: undefined,
+      };
+
+      toClient.write(meta.name, data);
+    }
+  }
+
   incomingPacket(packet: Packet): Packet {
     if (packet.meta.name === "chat") {
       let text = this.constructChatMessage(packet.data.message);
@@ -80,6 +152,8 @@ export class SplitScoreboard extends PacketInterceptor {
         this.checkpoints[checkpointData.checkpoint] = [];
       }
       this.checkpoints[checkpointData.checkpoint].push(checkpointData);
+      let scoreboard = this.updateScoreboard(this.checkpoints);
+      this.sendScoreboard(scoreboard, packet.toClient);
 
       return packet;
     }
