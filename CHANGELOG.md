@@ -1,3 +1,11 @@
+# [1.7.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.6.0...v1.7.0) (2025-04-07)
+
+
+### Features
+
+* run packet interceptors only in parkour duels by default (boolean in constructor) ([b4e67f3](https://github.com/Real-Parkour-Helper/pkdutils/commit/b4e67f38ff0b4e32bb1dd53d932025949b3f67c7))
+* track location on hypixel ([5a7adb8](https://github.com/Real-Parkour-Helper/pkdutils/commit/5a7adb809cc296f4bf888c364f8356c4a1c67513))
+
 # [1.6.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.5.1...v1.6.0) (2025-04-07)
 
 
