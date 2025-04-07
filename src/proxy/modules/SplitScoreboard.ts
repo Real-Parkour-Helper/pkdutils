@@ -2,6 +2,7 @@ import { Client, PacketMeta, ServerClient, states } from "minecraft-protocol";
 import { Logger } from "../../util/Logger";
 import { Packet } from "../packet/Packet";
 import { PacketInterceptor } from "../packet/PacketInterceptor";
+import { constructChatMessage } from "../util/packetUtils"
 
 interface CheckpointData {
   player: string;
@@ -41,26 +42,6 @@ export class SplitScoreboard extends PacketInterceptor {
     const milliseconds = parseInt(secondsParts[1], 10);
 
     return minutes * 60 * 1000 + seconds * 1000 + milliseconds;
-  }
-
-  private constructChatMessage(message: any): string {
-    let msgJson: any;
-    try {
-      msgJson = JSON.parse(message);
-    } catch (error) {
-      Logger.error("Failed to parse chat message as JSON:", error);
-      return "";
-    }
-
-    let textArr = [msgJson.text ?? ""];
-    if (msgJson.extra) {
-      for (let e of msgJson.extra) {
-        textArr.push(e.text ?? "");
-      }
-    }
-
-    let fullText = textArr.join("");
-    return fullText;
   }
 
   private updateScoreboard(
@@ -151,7 +132,7 @@ export class SplitScoreboard extends PacketInterceptor {
     }
 
     if (packet.meta.name === "chat") {
-      let text = this.constructChatMessage(packet.data.message);
+      let text = constructChatMessage(packet.data.message);
 
       if (text.includes("You completed the parkour")) {
         this.clearCheckpoints();
