@@ -52,7 +52,7 @@ export class Proxy {
         let packet = new Packet(meta, data, toClient, toServer);
         for (const interceptor of this.interceptors) {
           try {
-            packet = interceptor.incomingPacket(packet);
+            packet = interceptor.in(packet);
           } catch (error) {
             Logger.error(error);
           }
@@ -75,7 +75,7 @@ export class Proxy {
         // Forward all packets to the server
         let packet = new Packet(meta, data, toClient, toServer);
         for (const interceptor of this.interceptors) {
-          packet = interceptor.outgoingPacket(packet);
+          packet = interceptor.out(packet);
         }
 
         if (!packet.cancelled) {

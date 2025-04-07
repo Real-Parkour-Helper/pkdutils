@@ -1,4 +1,4 @@
-import { PacketInterceptor } from "../packet/PacketInterceptor"
+import { PacketInterceptor, setLocationGetter } from "../packet/PacketInterceptor"
 import { Packet } from "../packet/Packet"
 import { constructChatMessage } from "../util/packetUtils"
 
@@ -22,7 +22,7 @@ export class Location extends PacketInterceptor {
   private lastRespawn = 0
 
   constructor() {
-    super("Location", "1.0.0")
+    super("Location", "1.0.0", false)
   }
 
   incomingPacket(packet: Packet): Packet {
@@ -56,3 +56,5 @@ export class Location extends PacketInterceptor {
   }
 
 }
+
+setLocationGetter(() => Location)
