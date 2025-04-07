@@ -1,3 +1,11 @@
+# [1.6.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.5.1...v1.6.0) (2025-04-07)
+
+
+### Features
+
+* room data ([f01cd2c](https://github.com/Real-Parkour-Helper/pkdutils/commit/f01cd2c60f75f7c44bf37c3d2375684cb1c4e9c0))
+* room identification module (simply stores rooms from the current run, does nothing with them yet) ([5a7f8d0](https://github.com/Real-Parkour-Helper/pkdutils/commit/5a7f8d0e676a93399fcc809c3443b8be69cbf1fa))
+
 ## [1.5.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.5.0...v1.5.1) (2025-04-05)
 
 
