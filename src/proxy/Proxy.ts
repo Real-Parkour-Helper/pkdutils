@@ -7,6 +7,7 @@ import { Packet } from "./packet/Packet";
 import { SplitScoreboard } from "./modules/SplitScoreboard";
 import { World } from "./modules/World";
 import { RoomID } from "./modules/RoomID"
+import { Location } from "./modules/Location"
 
 /**
  * Proxy class
@@ -91,6 +92,6 @@ export class Proxy {
    * @private
    */
   private registerInterceptors() {
-    this.interceptors.push(...[new SplitScoreboard(), new World(), new RoomID()]);
+    this.interceptors.push(...[new SplitScoreboard(), new World(), new RoomID(), new Location()]);
   }
 }
