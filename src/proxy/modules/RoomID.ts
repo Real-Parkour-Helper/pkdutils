@@ -5,6 +5,7 @@ import { Logger } from "../../util/Logger"
 import { constructChatMessage } from "../util/packetUtils"
 import { BlockData, checkpointCount, RoomName, uniqueBlocks } from "../data/roomData"
 import { Vec3 } from "vec3"
+import { SplitTracker } from "./SplitTracker"
 
 export class RoomID extends PacketInterceptor {
   private currentCheckpoint = 0
@@ -15,6 +16,7 @@ export class RoomID extends PacketInterceptor {
 
   private startPosition = new Vec3(18, 72, 13)
   private rooms: RoomName[] = []
+  private splitTracker: SplitTracker = new SplitTracker()
 
 
   constructor() {
@@ -85,6 +87,8 @@ export class RoomID extends PacketInterceptor {
         }
 
         if (this.currentCheckpoint === nextRoomAt && this.rooms.length < 8) {
+          this.splitTracker.roomExit(text, this.currentRoomName, packet.toClient)
+          
           this.currentRoomNumber++
           this.currentRoomName = this.detectRoom()
 
