@@ -98,7 +98,7 @@ export class SplitScoreboard extends PacketInterceptor {
         realScoreboard.push({
           color: firstPlayer.color,
           player: firstPlayer.player,
-          value: `${checkpoint}`,
+          value: `#${checkpoint}`,
         });
         used[firstPlayer.player] = true;
       }
@@ -129,14 +129,27 @@ export class SplitScoreboard extends PacketInterceptor {
   ): void {
     for (let i = 0; i < scoreboard.length; i++) {
       let prefix: string;
-      let suffix: string = `§e${scoreboard[i].value}`.padStart(16);
+      let suffix: string = ` §e${scoreboard[i].value}`;
       if (scoreboard[i].player == "You") {
-        prefix = `§a${i + 1}. §a${scoreboard[i].player}`.padEnd(16);
+        prefix = `${i + 1}. §d${scoreboard[i].player}`;
       } else {
-        prefix =
-          `§a${i + 1}. ${this.colorToChatCode[scoreboard[i].color]}${scoreboard[i].player}`
-            .substring(0, 16)
-            .padEnd(16);
+        prefix = `${i + 1}. ${this.colorToChatCode[scoreboard[i].color]}${scoreboard[i].player}`;
+      }
+
+      if (prefix.length > 16) {
+        const newPrefix = prefix.substring(0, 16);
+        const rest = `${this.colorToChatCode[scoreboard[i].color]}${prefix.substring(16)}`;
+        const freeSpace = 16 - rest.length - suffix.length;
+        if (freeSpace < 0) {
+          suffix = `${rest.substring(0, rest.length + freeSpace)}${suffix}`;
+        } else {
+          suffix = `${rest}${" ".repeat(freeSpace)}${suffix}`;
+        }
+
+        prefix = newPrefix;
+      } else {
+        prefix = prefix.padEnd(16);
+        suffix = suffix.padStart(16);
       }
 
       let data = {
@@ -184,11 +197,11 @@ export class SplitScoreboard extends PacketInterceptor {
 
       return packet;
     } else if (packet.meta.name === "scoreboard_team") {
+      Logger.debug(JSON.stringify(packet.data));
       if (
         packet.data.team &&
-        /^team_[2-9]$/.test(packet.data.team) &&
-        packet.data.suffix &&
-        packet.data.suffix.includes("#")
+        /^team_[1-9]$/.test(packet.data.team) &&
+        !packet.data.players
       ) {
         packet.cancelled = true;
       }
