@@ -6,7 +6,11 @@ import { PacketInterceptor } from "./packet/PacketInterceptor";
 import { Packet } from "./packet/Packet";
 import { SplitScoreboard } from "./modules/SplitScoreboard";
 import { World } from "./modules/World";
-import { RoomID } from "./modules/RoomID"
+import { RoomID } from "./modules/RoomID";
+import { SplitTracker } from "./modules/SplitTracker";
+import { BoostInterceptor } from "./modules/BoostInterceptor";
+import { PlayerPosition } from "./modules/PlayerPosition";
+import { Timer } from "./modules/Timer";
 import { Location } from "./modules/Location"
 
 /**
@@ -17,6 +21,7 @@ import { Location } from "./modules/Location"
 export class Proxy {
   private proxy: InstantConnectProxy;
   private interceptors: PacketInterceptor[] = [];
+  private splitTracker: SplitTracker = new SplitTracker();
 
   constructor() {
     this.proxy = new InstantConnectProxy({
@@ -92,6 +97,18 @@ export class Proxy {
    * @private
    */
   private registerInterceptors() {
-    this.interceptors.push(...[new SplitScoreboard(), new World(), new RoomID(), new Location()]);
+    const positionTracker = new PlayerPosition();
+    const timer = new Timer();
+    this.interceptors.push(
+      ...[
+        new SplitScoreboard(),
+        new World(),
+        new Location(),
+        positionTracker,
+        timer,
+        new BoostInterceptor(this.splitTracker, positionTracker, timer),
+        new RoomID(this.splitTracker),
+      ],
+    );
   }
 }

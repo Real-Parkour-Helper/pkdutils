@@ -5,6 +5,18 @@ export interface BlockData {
   block_name: string;
 }
 
+export interface BoostRegion {
+  min_x: number;
+  min_z: number;
+  max_x: number;
+  max_z: number;
+}
+
+export interface BoostStrat {
+  name: string;
+  region: BoostRegion
+}
+
 export type RoomName =
   "around pillars" |
   "blocks" |
@@ -544,3 +556,522 @@ export const uniqueBlocks: Record<RoomName, BlockData[]> = {
     }
   ]
 }
+
+export const boostRegions: Record<RoomName, BoostStrat[]> = {
+  "around pillars": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -4,
+        min_z: 1,
+        max_x: 6,
+        max_z: 9,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -5,
+        min_z: 11,
+        max_x: 6,
+        max_z: 24,
+      },
+    },
+  ],
+  blocks: [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -8,
+        min_z: 1,
+        max_x: 7,
+        max_z: 14,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -15,
+        min_z: 17,
+        max_x: 4,
+        max_z: 31,
+      },
+    },
+  ],
+  "castle wall": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -15,
+        min_z: 1,
+        max_x: 15,
+        max_z: 51,
+      },
+    },
+  ],
+  "early 3+1": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: 0,
+        min_z: 0,
+        max_x: 15,
+        max_z: 27,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -15,
+        min_z: 30,
+        max_x: 10,
+        max_z: 40,
+      },
+    },
+  ],
+  "fence squeeze": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -8,
+        min_z: 2,
+        max_x: 9,
+        max_z: 23,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -4,
+        min_z: 24,
+        max_x: 4,
+        max_z: 30,
+      },
+    },
+  ],
+  fences: [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -7,
+        min_z: 1,
+        max_x: 7,
+        max_z: 14,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -2,
+        min_z: 23,
+        max_x: 2,
+        max_z: 29,
+      },
+    },
+  ],
+  fortress: [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -6,
+        min_z: 1,
+        max_x: 6,
+        max_z: 11,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -4,
+        min_z: 19,
+        max_x: 4,
+        max_z: 29,
+      },
+    },
+  ],
+  "four towers": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -5,
+        min_z: 1,
+        max_x: 0,
+        max_z: 5,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -4,
+        min_z: 10,
+        max_x: 3,
+        max_z: 16,
+      },
+    },
+    {
+      name: "cp 2-3",
+      region: {
+        min_x: 11,
+        min_z: 20,
+        max_x: 15,
+        max_z: 32,
+      },
+    },
+  ],
+  "rng skip": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -3,
+        min_z: 1,
+        max_x: 3,
+        max_z: 9,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -1,
+        min_z: 14,
+        max_x: 1,
+        max_z: 24,
+      },
+    },
+  ],
+  ice: [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -2,
+        min_z: 1,
+        max_x: 2,
+        max_z: 6,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -8,
+        min_z: 15,
+        max_x: -4,
+        max_z: 19,
+      },
+    },
+    {
+      name: "cp 2-3",
+      region: {
+        min_x: 3,
+        min_z: 19,
+        max_x: 5,
+        max_z: 30,
+      },
+    },
+  ],
+  "ladder slide": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -3,
+        min_z: 1,
+        max_x: 3,
+        max_z: 14,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: 2,
+        min_z: 25,
+        max_x: 15,
+        max_z: 31,
+      },
+    },
+  ],
+  "ladder tower": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -4,
+        min_z: 1,
+        max_x: 4,
+        max_z: 10,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -3,
+        min_z: 11,
+        max_x: 3,
+        max_z: 20,
+      },
+    },
+  ],
+  "overhead 4b": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -3,
+        min_z: 1,
+        max_x: 3,
+        max_z: 6,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -1,
+        min_z: 10,
+        max_x: 7,
+        max_z: 18,
+      },
+    },
+    {
+      name: "cp 2-3",
+      region: {
+        min_x: -11,
+        min_z: 16,
+        max_x: -4,
+        max_z: 27,
+      },
+    },
+  ],
+  "quartz climb": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -10,
+        min_z: 1,
+        max_x: 10,
+        max_z: 20,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -4,
+        min_z: 24,
+        max_x: 4,
+        max_z: 30,
+      },
+    },
+  ],
+  "quartz temple": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -3,
+        min_z: 1,
+        max_x: 3,
+        max_z: 6,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -2,
+        min_z: 11,
+        max_x: 2,
+        max_z: 24,
+      },
+    },
+  ],
+  sandpit: [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -15,
+        min_z: 1,
+        max_x: -4,
+        max_z: 10,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -12,
+        min_z: 12,
+        max_x: 3,
+        max_z: 18,
+      },
+    },
+    {
+      name: "cp 2-3",
+      region: {
+        min_x: 10,
+        min_z: 26,
+        max_x: 15,
+        max_z: 42,
+      },
+    },
+  ],
+  scatter: [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -8,
+        min_z: 1,
+        max_x: 6,
+        max_z: 17,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -8,
+        min_z: 21,
+        max_x: 13,
+        max_z: 35,
+      },
+    },
+  ],
+  "slime scatter": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -3,
+        min_z: 1,
+        max_x: 13,
+        max_z: 20,
+      },
+    },
+    {
+      name: "cp 2-3",
+      region: {
+        min_x: -7,
+        min_z: 12,
+        max_x: -4,
+        max_z: 31,
+      },
+    },
+  ],
+  "slime skip": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -3,
+        min_z: 1,
+        max_x: 3,
+        max_z: 15,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -3,
+        min_z: 21,
+        max_x: 3,
+        max_z: 27,
+      },
+    },
+  ],
+  tightrope: [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -6,
+        min_z: 1,
+        max_x: 6,
+        max_z: 15,
+      },
+    },
+    {
+      name: "cp 1-2 + salami",
+      region: {
+        min_x: 7,
+        min_z: 18,
+        max_x: 15,
+        max_z: 25,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: 15,
+        min_z: 32,
+        max_x: 15,
+        max_z: 41,
+      },
+    },
+  ],
+  "tower tightrope": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: 0,
+        min_z: 1,
+        max_x: 9,
+        max_z: 9,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -15,
+        min_z: 17,
+        max_x: 15,
+        max_z: 32,
+      },
+    },
+  ],
+  "triple platform": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -3,
+        min_z: 1,
+        max_x: 9,
+        max_z: 12,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: 2,
+        min_z: 18,
+        max_x: 12,
+        max_z: 26,
+      },
+    },
+  ],
+  "triple trapdoors": [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: 0,
+        min_z: 1,
+        max_x: 11,
+        max_z: 8,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: 12,
+        min_z: 15,
+        max_x: 15,
+        max_z: 31,
+      },
+    },
+  ],
+  underbridge: [
+    {
+      name: "cp 0-1",
+      region: {
+        min_x: -15,
+        min_z: 1,
+        max_x: 0,
+        max_z: 19,
+      },
+    },
+    {
+      name: "cp 1-2",
+      region: {
+        min_x: -9,
+        min_z: 28,
+        max_x: 15,
+        max_z: 42,
+      },
+    },
+  ],
+};
