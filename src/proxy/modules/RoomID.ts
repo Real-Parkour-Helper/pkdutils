@@ -22,7 +22,7 @@ export class RoomID extends PacketInterceptor {
   private calcUrl = "https://wired-cod-kindly.ngrok-free.app/api/pkdutils/calc"
 
   constructor(splitTracker: SplitTracker) {
-    super("RoomID", "1.0.0")
+    super("RoomID", "1.0.0", true, ["respawn"])
     this.splitTracker = splitTracker
   }
 

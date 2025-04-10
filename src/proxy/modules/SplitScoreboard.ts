@@ -34,7 +34,7 @@ export class SplitScoreboard extends PacketInterceptor {
   };
 
   constructor() {
-    super("SplitScoreboard", "1.0.0");
+    super("SplitScoreboard", "1.0.0", true, ["respawn"]);
   }
 
   private parseCheckpointMessage(
@@ -276,7 +276,6 @@ export class SplitScoreboard extends PacketInterceptor {
 
       return packet;
     } else if (packet.meta.name === "scoreboard_team") {
-      Logger.debug(JSON.stringify(packet.data));
       if (
         this.gameStarted &&
         packet.data.team &&

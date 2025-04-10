@@ -21,11 +21,13 @@ export abstract class PacketInterceptor {
   protected _version: string
 
   private readonly inGameOnly: boolean
+  private readonly alwaysPackets: string[] = []
 
-  protected constructor(name: string, version: string, runInGameOnly: boolean = true) {
+  protected constructor(name: string, version: string, runInGameOnly: boolean = true, alwaysPackets: string[] = []) {
     this._name = name
     this._version = version
     this.inGameOnly = runInGameOnly
+    this.alwaysPackets = alwaysPackets || []
 
     Logger.info(`${name} v${version} instantiated!`)
   }
@@ -40,6 +42,8 @@ export abstract class PacketInterceptor {
       return this.incomingPacket(packet)
     } else if (!this.inGameOnly) {
       return this.incomingPacket(packet)
+    } else if (this.alwaysPackets.includes(packet.meta.name)) {
+      return this.incomingPacket(packet)
     }
     return packet
   }
@@ -53,6 +57,8 @@ export abstract class PacketInterceptor {
     if (this.inGameOnly && getLocation?.()?.locationData?.mode === "DUELS_PARKOUR_EIGHT") {
       return this.outgoingPacket(packet)
     } else if (!this.inGameOnly) {
+      return this.outgoingPacket(packet)
+    } else if (this.alwaysPackets.includes(packet.meta.name)) {
       return this.outgoingPacket(packet)
     }
     return packet

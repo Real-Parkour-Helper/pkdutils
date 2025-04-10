@@ -15,7 +15,7 @@ export class Timer extends PacketInterceptor {
   }
 
   constructor() {
-    super("Timer", "1.0.0");
+    super("Timer", "1.0.0", true, ["respawn"]);
   }
 
   incomingPacket(packet: Packet): Packet {
