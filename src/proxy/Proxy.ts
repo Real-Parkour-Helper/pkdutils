@@ -59,7 +59,7 @@ export class Proxy {
           try {
             packet = interceptor.in(packet);
           } catch (error) {
-            Logger.error(error);
+            Logger.error(`Error in (incoming) interceptor ${interceptor.name}: ${error}`);
           }
         }
 
@@ -80,7 +80,11 @@ export class Proxy {
         // Forward all packets to the server
         let packet = new Packet(meta, data, toClient, toServer);
         for (const interceptor of this.interceptors) {
-          packet = interceptor.out(packet);
+          try {
+            packet = interceptor.out(packet);
+          } catch (error) {
+            Logger.error(`Error in (outgoing) interceptor ${interceptor.name}: ${error}`);
+          }
         }
 
         if (!packet.cancelled) {
