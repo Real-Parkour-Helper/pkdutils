@@ -10,6 +10,7 @@ import { RoomID } from "./modules/RoomID";
 import { SplitTracker } from "./modules/SplitTracker";
 import { BoostInterceptor } from "./modules/BoostInterceptor";
 import { PlayerPosition } from "./modules/PlayerPosition";
+import { Timer } from "./modules/Timer";
 
 /**
  * Proxy class
@@ -96,12 +97,14 @@ export class Proxy {
    */
   private registerInterceptors() {
     const positionTracker = new PlayerPosition();
+    const timer = new Timer();
     this.interceptors.push(
       ...[
         new SplitScoreboard(),
         new World(),
         positionTracker,
-        new BoostInterceptor(this.splitTracker, positionTracker),
+        timer,
+        new BoostInterceptor(this.splitTracker, positionTracker, timer),
         new RoomID(this.splitTracker),
       ],
     );

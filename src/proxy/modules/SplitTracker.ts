@@ -4,6 +4,7 @@ import { RoomName } from "../data/roomData";
 import { PlayerPositionData } from "./PlayerPosition";
 import * as fs from "fs";
 import * as path from "path";
+import { msToSplit, splitToMs } from "../util/splitUtils";
 
 type BoostStrat = {
   name: string;
@@ -27,6 +28,7 @@ export class SplitTracker {
   private roomEnterSplit: number = 0;
   private hasBoosted: boolean = false;
   private boostPosition: PlayerPositionData | null = null;
+  private boostTime: number = 0;
   private splitsData: SplitsData = {};
   private splitsFilePath: string;
 
@@ -46,6 +48,7 @@ export class SplitTracker {
     this.roomEnterSplit = 0;
     this.hasBoosted = false;
     this.boostPosition = null;
+    this.boostTime = 0;
   }
 
   /**
@@ -87,10 +90,11 @@ export class SplitTracker {
   /**
    * A function for BoostInterceptor to call when the player uses his Parkour Booster
    */
-  recordBoost(pos: PlayerPositionData) {
+  recordBoost(pos: PlayerPositionData, time: number) {
     this.hasBoosted = true;
     this.boostPosition = pos;
-    Logger.debug(`Player has boosted from ${JSON.stringify(pos)}`);
+    this.boostTime = time;
+    Logger.debug(`Player has boosted from ${JSON.stringify(pos)} at ${time}`);
   }
 
   roomExit(
@@ -112,7 +116,7 @@ export class SplitTracker {
     Logger.debug(JSON.stringify(match));
 
     const splitString = match[2];
-    const roomExitSplit = this.splitToMs(splitString);
+    const roomExitSplit = splitToMs(splitString);
     const roomSplit = roomExitSplit - this.roomEnterSplit;
 
     if (this.hasBoosted && this.boostPosition) {
@@ -130,7 +134,7 @@ export class SplitTracker {
 
       this.updateBoostStratSplits(roomName, boostStratName, roomSplit);
 
-      const text = `§9Finished §a${roomName} (${boostStratName}) §a with boost §9in §a${this.msToSplit(roomSplit)}s${pbText}`;
+      const text = `§9Finished §a${roomName} (${boostStratName}) §6 with boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
       toClient.write("chat", {
         message: `{ "text": "${text}" }`,
         position: 0,
@@ -142,7 +146,7 @@ export class SplitTracker {
       this.updateBestSplits(roomName, roomSplit);
 
       Logger.debug(`sending a message for room ${roomName}`);
-      const text = `§9Finished §a${roomName} §cwithout boost §9in §a${this.msToSplit(roomSplit)}s${pbText}`;
+      const text = `§9Finished §a${roomName} §6without boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
       toClient.write("chat", {
         message: `{ "text": "${text}" }`,
         position: 0,
@@ -186,7 +190,7 @@ export class SplitTracker {
     const strat = this.splitsData[roomName].boost_strats[stratIndex];
     if (time < strat.time) {
       strat.time = time;
-      strat.boost_time = 0;
+      strat.boost_time = this.boostTime - this.roomEnterSplit;
       this.saveSplits();
     }
   }
@@ -216,42 +220,5 @@ export class SplitTracker {
     boostPos: PlayerPositionData,
   ): string {
     return "Unknown Strat";
-  }
-
-  /**
-   * Converts a time string in the format "mm:ss.ms" to milliseconds
-   */
-  private splitToMs(timeString: string): number {
-    const parts = timeString.split(":");
-
-    if (parts.length === 2) {
-      const minutes = parseInt(parts[0]);
-      const secondsParts = parts[1].split(".");
-      const seconds = parseInt(secondsParts[0]);
-      const milliseconds = parseInt(
-        secondsParts[1].padEnd(3, "0").substring(0, 3),
-      );
-
-      return minutes * 60 * 1000 + seconds * 1000 + milliseconds;
-    } else {
-      Logger.warn(`Unexpected time format: ${timeString}`);
-      return 0;
-    }
-  }
-
-  /**
-   * Formats milliseconds to the "ss.ms" format
-   */
-  private msToSplit(milliseconds: number): string {
-    milliseconds = Math.abs(milliseconds);
-
-    const seconds = Math.floor(milliseconds / 1000);
-    const ms = milliseconds % 1000;
-
-    const formattedMs = Math.floor(ms / 10)
-      .toString()
-      .padStart(2, "0");
-
-    return `${seconds}.${formattedMs}`;
   }
 }

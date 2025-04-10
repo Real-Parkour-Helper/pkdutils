@@ -3,19 +3,26 @@ import { Packet } from "../packet/Packet";
 import { PacketInterceptor } from "../packet/PacketInterceptor";
 import { PlayerPosition } from "./PlayerPosition";
 import { SplitTracker } from "./SplitTracker";
+import { Timer } from "./Timer";
 
 /**
  * BoostInterceptor class for keeping track of when player uses his boost
  */
 export class BoostInterceptor extends PacketInterceptor {
-  private entityId: number = 0;
+  private entityId: number | null = null;
   private splitTracker: SplitTracker;
   private positionTracker: PlayerPosition;
+  private timer: Timer;
 
-  constructor(splitTracker: SplitTracker, positionTracker: PlayerPosition) {
+  constructor(
+    splitTracker: SplitTracker,
+    positionTracker: PlayerPosition,
+    timer: Timer,
+  ) {
     super("BoostInterceptor", "1.0.0");
     this.splitTracker = splitTracker;
     this.positionTracker = positionTracker;
+    this.timer = timer;
   }
 
   incomingPacket(packet: Packet): Packet {
@@ -42,7 +49,10 @@ export class BoostInterceptor extends PacketInterceptor {
       return packet;
     }
 
-    this.splitTracker.recordBoost(this.positionTracker.pos);
+    this.splitTracker.recordBoost(
+      this.positionTracker.pos,
+      this.timer.currentTime,
+    );
     return packet;
   }
 
