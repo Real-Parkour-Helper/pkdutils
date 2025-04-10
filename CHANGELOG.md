@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.8.1...v1.9.0) (2025-04-10)
+
+
+### Features
+
+* send seeds to blrkbot and output the results ([ccf172d](https://github.com/Real-Parkour-Helper/pkdutils/commit/ccf172d7687e83815b9f3a1857c8271e582af3e5))
+
 ## [1.8.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.8.0...v1.8.1) (2025-04-10)
 
 
