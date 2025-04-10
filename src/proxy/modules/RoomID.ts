@@ -118,7 +118,7 @@ export class RoomID extends PacketInterceptor {
         });
       }
       toClient.write("chat", {
-        message: JSON.stringify({ text: `§9Boostless time with §6your splits§9: §a${data.best.boostless_time}` }),
+        message: JSON.stringify({ text: `§9Boostless time with §6your splits§9: §a${data.personal.boostless_time}` }),
         position: 0
       });
       toClient.write("chat", {
@@ -133,7 +133,7 @@ export class RoomID extends PacketInterceptor {
           pacelockMsg = ` §9(pacelock §c${br.pacelock}s§9)`;
         }
         toClient.write("chat", {
-          message: JSON.stringify({ text: `§9Room §6${br.index}: §a${br.name}${pacelockMsg}` }),
+          message: JSON.stringify({ text: `§9Room §6${br.index + 1}: §a${br.name}${pacelockMsg}` }),
           position: 0
         });
       }
