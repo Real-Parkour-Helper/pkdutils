@@ -396,4 +396,14 @@ export const defaultSplits: SplitsData = {
       },
     ],
   },
+  "finish room": {
+    boostless_time: 4400,
+    boost_strats: [
+      {
+        name: "lol",
+        time: 2900,
+        boost_time: 500,
+      },
+    ],
+  },
 };

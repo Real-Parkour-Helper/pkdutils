@@ -6,6 +6,7 @@ import { constructChatMessage } from "../util/packetUtils"
 import { BlockData, checkpointCount, RoomName, uniqueBlocks } from "../data/roomData"
 import { Vec3 } from "vec3"
 import { SplitTracker } from "./SplitTracker"
+import { ServerClient } from "minecraft-protocol"
 
 export class RoomID extends PacketInterceptor {
   private currentCheckpoint = 0
@@ -18,6 +19,8 @@ export class RoomID extends PacketInterceptor {
   private currentRoomStartPosition = this.startPosition;
   private rooms: RoomName[] = []
   private splitTracker: SplitTracker
+  // private calcUrl = "https://wired-cod-kindly.ngrok-free.app/api/pkdutils/calc"
+  private calcUrl = "http://localhost:6969/api/pkdutils/calc"
 
   constructor(splitTracker: SplitTracker) {
     super("RoomID", "1.0.0")
@@ -56,6 +59,95 @@ export class RoomID extends PacketInterceptor {
     return null // this should never happen but typescript must be pleased
   }
 
+  /**
+   * Sends the seed to Parkour Duels Bot and returns the optimal result
+   * @private
+   */
+  private calcSeed(seed: RoomName[], toClient: ServerClient) {
+    const content = {
+      rooms: seed,
+      splits: this.splitTracker.splitsData
+    }
+
+    fetch(this.calcUrl, {
+      method: 'POST',
+      body: JSON.stringify(content)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!toClient) {
+        return;
+      }
+      toClient.write("chat", {
+        message: JSON.stringify({ text: `§9Perfect boost time: §a${data.best.boost_time}` }),
+        position: 0
+      });
+      toClient.write("chat", {
+        message: JSON.stringify({ text: `§9Perfect boostless time: §a${data.best.boostless_time}` }),
+        position: 0
+      });
+      toClient.write("chat", {
+        message: JSON.stringify({ text: '§9You should boost in the following rooms:' }),
+        position: 0
+      });
+
+      for (let br of data.best.boost_rooms) {
+        let pacelockMsg = "";
+        if (br.pacelock > 0) {
+          br.pacelock = br.pacelock.toFixed(1);
+          pacelockMsg = ` §9(pacelock §c${br.pacelock}s§9)`;
+        }
+        toClient.write("chat", {
+          message: JSON.stringify({ text: `§9Room §6${br.index + 1}: §a${br.name}${pacelockMsg}` }),
+          position: 0
+        });
+      }
+
+      if (!data.personal) {
+        return;
+      }
+      
+      if (data.personal.boost_time === "") {
+        toClient.write("chat", {
+          message: JSON.stringify({ text: `§9It seems you haven't collected enough splits for us to determine the fastest time :(` }),
+          position: 0
+        });
+      } else {
+        toClient.write("chat", {
+          message: JSON.stringify({ text: `§9Boost time with §6your splits§9: §a${data.personal.boost_time}` }),
+          position: 0
+        });
+      }
+      toClient.write("chat", {
+        message: JSON.stringify({ text: `§9Boostless time with §6your splits§9: §a${data.best.boostless_time}` }),
+        position: 0
+      });
+      toClient.write("chat", {
+        message: JSON.stringify({ text: '§9You should boost in the following rooms:' }),
+        position: 0
+      });
+
+      for (let br of data.personal.boost_rooms) {
+        let pacelockMsg = "";
+        if (br.pacelock > 0) {
+          br.pacelock = br.pacelock.toFixed(1);
+          pacelockMsg = ` §9(pacelock §c${br.pacelock}s§9)`;
+        }
+        toClient.write("chat", {
+          message: JSON.stringify({ text: `§9Room §6${br.index}: §a${br.name}${pacelockMsg}` }),
+          position: 0
+        });
+      }
+    })
+    .catch(error => {
+      Logger.error(`Error calculating seed: ${error}`);
+      toClient.write("chat", {
+        message: JSON.stringify({ text: '§cSomething went wrong when calculating the seed :(' }),
+        position: 0
+      });
+    });
+  }
+
   incomingPacket(packet: Packet): Packet {
     if (packet.meta.name === "respawn") {
       this.currentCheckpoint = 0
@@ -79,6 +171,11 @@ export class RoomID extends PacketInterceptor {
           Logger.error("There was an error identifying which room you are in! Please report this.")
         }
       }
+
+      if (text.startsWith("COMPLETED! You completed the parkour")) {
+        this.calcSeed(this.rooms, packet.toClient)
+      }
+
       const match = text.match(this.checkpointRegex)
 
       if (match) {
@@ -94,7 +191,7 @@ export class RoomID extends PacketInterceptor {
           if (this.rooms.length >= 8) {
             return packet;
           }
-          
+
           this.currentRoomNumber++
           const detectedRoom = this.detectRoom()
 

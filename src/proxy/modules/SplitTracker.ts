@@ -7,7 +7,7 @@ import * as path from "path";
 import { msToSplit, splitToMs } from "../util/splitUtils";
 import { Vec3 } from "vec3";
 import { defaultSplits, SplitsData } from "../data/defaultSplits";
-import { titleCase } from "../util/generalUtils"
+import { titleCase } from "../util/generalUtils";
 
 /**
  * SplitTracker class for parsing and storing player's splits
@@ -17,8 +17,12 @@ export class SplitTracker {
   private hasBoosted: boolean = false;
   private boostPosition: PlayerPositionData | null = null;
   private boostTime: number = 0;
-  private splitsData: SplitsData = {};
+  private _splitsData: SplitsData = {};
   private splitsFilePath: string;
+
+  get splitsData(): SplitsData {
+    return this._splitsData;
+  }
 
   private checkpointRegex =
     /CHECKPOINT! You reached checkpoint (\d+) in ([\d:\.]+)!/;
@@ -46,16 +50,16 @@ export class SplitTracker {
     try {
       if (fs.existsSync(this.splitsFilePath)) {
         const fileData = fs.readFileSync(this.splitsFilePath, "utf8");
-        this.splitsData = JSON.parse(fileData);
+        this._splitsData = JSON.parse(fileData);
         Logger.debug(`Loaded splits data from ${this.splitsFilePath}`);
       } else {
-        this.splitsData = defaultSplits;
+        this._splitsData = defaultSplits;
         this.saveSplits();
         Logger.debug(`Created new splits file at ${this.splitsFilePath}`);
       }
     } catch (error) {
       Logger.error(`Failed to load splits data: ${error}`);
-      this.splitsData = {};
+      this._splitsData = {};
     }
   }
 
@@ -66,7 +70,7 @@ export class SplitTracker {
     try {
       fs.writeFileSync(
         this.splitsFilePath,
-        JSON.stringify(this.splitsData, null, 2),
+        JSON.stringify(this._splitsData, null, 2),
         "utf8",
       );
       Logger.debug(`Saved splits data to ${this.splitsFilePath}`);
@@ -115,20 +119,15 @@ export class SplitTracker {
         roomStartPos,
       );
 
-      const diff = this.boostStratPBDiff(
-        roomName,
-        boostStratName,
-        roomSplit,
-      );
+      const diff = this.boostStratPBDiff(roomName, boostStratName, roomSplit);
 
-      const isFirstPB = 600000 + diff === roomSplit
-      let pbText = ""
+      const isFirstPB = 600000 + diff === roomSplit;
+      let pbText = "";
       if (diff > 0) {
-        pbText = ` §c§l(+${msToSplit(diff)}s)`
+        pbText = ` §c§l(+${msToSplit(diff)}s)`;
       } else if (diff < 0 && !isFirstPB) {
-        pbText = ` §e§lPB! §a§l(-${msToSplit(diff)}s)`
+        pbText = ` §e§lPB! §a§l(-${msToSplit(diff)}s)`;
       }
-
 
       this.updateBoostStratSplits(roomName, boostStratName, roomSplit);
 
@@ -140,12 +139,12 @@ export class SplitTracker {
     } else {
       const diff = this.isBoostlessPersonalBest(roomName, roomSplit);
 
-      const isFirstPB = 600000 + diff === roomSplit
-      let pbText = ""
+      const isFirstPB = 600000 + diff === roomSplit;
+      let pbText = "";
       if (diff > 0) {
-        pbText = ` §c§l(+${msToSplit(diff)}s)`
+        pbText = ` §c§l(+${msToSplit(diff)}s)`;
       } else if (diff < 0 && !isFirstPB) {
-        pbText = ` §e§lPB! §a§l(-${msToSplit(diff)}s)`
+        pbText = ` §e§lPB! §a§l(-${msToSplit(diff)}s)`;
       }
 
       this.updateBestSplits(roomName, roomSplit);
@@ -167,8 +166,8 @@ export class SplitTracker {
    * Update the best splits for a room
    */
   private updateBestSplits(roomName: string, time: number): void {
-    if (!this.hasBoosted && time < this.splitsData[roomName].boostless_time) {
-      this.splitsData[roomName].boostless_time = time;
+    if (!this.hasBoosted && time < this._splitsData[roomName].boostless_time) {
+      this._splitsData[roomName].boostless_time = time;
       this.saveSplits();
     }
   }
@@ -177,7 +176,7 @@ export class SplitTracker {
    * Check if the current boostless time is a personal best
    */
   private isBoostlessPersonalBest(roomName: string, time: number): number {
-    return time - this.splitsData[roomName].boostless_time;
+    return time - this._splitsData[roomName].boostless_time;
   }
 
   /**
@@ -188,11 +187,11 @@ export class SplitTracker {
     stratName: string, // TODO: just use an index instead
     time: number,
   ): void {
-    let stratIndex = this.splitsData[roomName].boost_strats.findIndex(
+    let stratIndex = this._splitsData[roomName].boost_strats.findIndex(
       (strat) => strat.name === stratName,
     );
 
-    const strat = this.splitsData[roomName].boost_strats[stratIndex];
+    const strat = this._splitsData[roomName].boost_strats[stratIndex];
     if (time < strat.time) {
       strat.time = time;
       strat.boost_time = this.boostTime - this.roomEnterSplit;
@@ -208,7 +207,7 @@ export class SplitTracker {
     stratName: string, // TODO: just use an index instead
     time: number,
   ): number {
-    const strat = this.splitsData[roomName].boost_strats.find(
+    const strat = this._splitsData[roomName].boost_strats.find(
       (s) => s.name === stratName,
     );
     if (!strat) return -1000;

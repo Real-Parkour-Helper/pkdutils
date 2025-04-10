@@ -154,7 +154,7 @@ export class SplitScoreboard extends PacketInterceptor {
       let prefix: string;
       let suffix: string = ` §e${scoreboard[i].value}`;
       if (scoreboard[i].player == "You") {
-        prefix = `${i + 1}. §d${scoreboard[i].player}`;
+        prefix = `${i + 1}. §d§l${scoreboard[i].player}`;
       } else {
         prefix = `${i + 1}. ${this.colorToChatCode[scoreboard[i].color]}${scoreboard[i].player}`;
       }
