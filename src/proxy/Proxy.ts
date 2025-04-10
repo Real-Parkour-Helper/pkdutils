@@ -101,13 +101,13 @@ export class Proxy {
     const timer = new Timer();
     this.interceptors.push(
       ...[
-        new SplitScoreboard(),
-        new World(),
         new Location(),
+        new World(),
+        new RoomID(this.splitTracker),
+        new SplitScoreboard(),
         positionTracker,
         timer,
         new BoostInterceptor(this.splitTracker, positionTracker, timer),
-        new RoomID(this.splitTracker),
       ],
     );
   }
