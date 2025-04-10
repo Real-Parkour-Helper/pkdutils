@@ -12,6 +12,7 @@ import { BoostInterceptor } from "./modules/BoostInterceptor";
 import { PlayerPosition } from "./modules/PlayerPosition";
 import { Timer } from "./modules/Timer";
 import { Location } from "./modules/Location"
+import { ParkourCommand } from "./commands/ParkourCommand"
 
 /**
  * Proxy class
@@ -45,6 +46,7 @@ export class Proxy {
     });
 
     this.registerInterceptors();
+    this.registerCommands()
 
     this.proxy.on(
       "incoming",
@@ -114,5 +116,15 @@ export class Proxy {
         new BoostInterceptor(this.splitTracker, positionTracker, timer),
       ],
     );
+  }
+
+  /**
+   * Registers the commands the proxy should use.
+   * @private
+   */
+  private registerCommands() {
+    this.interceptors.push(...[
+      new ParkourCommand()
+    ])
   }
 }
