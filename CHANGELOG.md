@@ -1,3 +1,11 @@
+## [1.9.4](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.3...v1.9.4) (2025-04-10)
+
+
+### Bug Fixes
+
+* clearer error messages when catching exceptions thrown by interceptors, wrap outgoing handlers in try / catch as well ([ad85863](https://github.com/Real-Parkour-Helper/pkdutils/commit/ad85863a7b1582fc1d971e9746821bf11784351c))
+* fixed chunk buffer error ([b26ec0c](https://github.com/Real-Parkour-Helper/pkdutils/commit/b26ec0cd068132c30303d5c8e4a0a90fc8a2809c))
+
 ## [1.9.3](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.2...v1.9.3) (2025-04-10)
 
 
