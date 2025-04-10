@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.4...v1.10.0) (2025-04-10)
+
+
+### Features
+
+* easy to make command class, create parkour command ([85ca2e0](https://github.com/Real-Parkour-Helper/pkdutils/commit/85ca2e02b9643118a9914e12703b94ebeea3a154))
+
 ## [1.9.4](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.3...v1.9.4) (2025-04-10)
 
 
