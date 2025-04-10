@@ -2,12 +2,21 @@ import { Client, PacketMeta, ServerClient, states } from "minecraft-protocol";
 import { Logger } from "../../util/Logger";
 import { Packet } from "../packet/Packet";
 import { PacketInterceptor } from "../packet/PacketInterceptor";
-import { constructChatMessage } from "../util/packetUtils"
+import { constructChatMessage } from "../util/packetUtils";
 
 interface CheckpointData {
+  color: string;
   player: string;
   checkpoint: number;
   time: number;
+  disconnected: boolean;
+  completed: boolean;
+}
+
+interface ScoreboardEntry {
+  color: string;
+  player: string;
+  value: string;
 }
 
 interface CheckpointMap {
@@ -15,22 +24,35 @@ interface CheckpointMap {
 }
 
 export class SplitScoreboard extends PacketInterceptor {
+  private gameStarted: boolean = false;
   private checkpoints: CheckpointMap = {};
+  private colorToChatCode: Record<string, string> = {
+    gray: "§7",
+    gold: "§6",
+    green: "§a",
+    aqua: "§b",
+  };
 
   constructor() {
     super("SplitScoreboard", "1.0.0");
   }
 
-  private parseCheckpointMessage(message: string): CheckpointData | null {
+  private parseCheckpointMessage(
+    message: string,
+    color: string,
+  ): CheckpointData | null {
     const regex = /CHECKPOINT! (.*) reached checkpoint (\d+) in ([\d:\.]+)!/;
     const match = message.match(regex);
 
     if (!match) return null;
 
     return {
+      color: color,
       player: match[1],
       checkpoint: parseInt(match[2], 10),
       time: this.timeToMilliseconds(match[3]),
+      disconnected: false,
+      completed: false,
     };
   }
 
@@ -44,42 +66,77 @@ export class SplitScoreboard extends PacketInterceptor {
     return minutes * 60 * 1000 + seconds * 1000 + milliseconds;
   }
 
-  private updateScoreboard(
-    scoreboardMap: CheckpointMap,
-  ): { player: string; value: string }[] {
+  private getPlayerColor(message: any): string {
+    let msgJson: any;
+    try {
+      msgJson = JSON.parse(message);
+    } catch (error) {
+      Logger.error("Failed to parse chat message as JSON:", error);
+      return "";
+    }
+
+    if (msgJson.extra && msgJson.extra.length >= 2) {
+      if (msgJson.extra[0].text.trim() != "CHECKPOINT!") {
+        return "";
+      }
+
+      const color = msgJson.extra[1].color;
+      return color;
+    }
+
+    return "";
+  }
+
+  private updateScoreboard(scoreboardMap: CheckpointMap): ScoreboardEntry[] {
     let used: { [player: string]: boolean } = {};
-    let realScoreboard: { player: string; value: string }[] = [];
+    let realScoreboard: ScoreboardEntry[] = [];
 
     const checkpoints = Object.keys(scoreboardMap)
       .map(Number)
       .sort((a, b) => b - a);
 
     for (const checkpoint of checkpoints) {
-      const playersAtCheckpoint = [...scoreboardMap[checkpoint]];
+      const playersAtCheckpoint = scoreboardMap[checkpoint];
 
       if (playersAtCheckpoint.length === 0) continue;
 
-      const firstPlayer = playersAtCheckpoint[0];
+      let firstPlayerIndex = -1;
+      for (let i = 0; i < playersAtCheckpoint.length; i++) {
+        if (!playersAtCheckpoint[i].disconnected) {
+          firstPlayerIndex = i;
+          break;
+        }
+      }
+
+      if (firstPlayerIndex == -1) {
+        continue;
+      }
+
+      const firstPlayer = playersAtCheckpoint[firstPlayerIndex];
       const firstPlayerTime = firstPlayer.time;
 
       if (!used[firstPlayer.player]) {
         realScoreboard.push({
+          color: firstPlayer.color,
           player: firstPlayer.player,
-          value: `${checkpoint}`,
+          value: firstPlayer.completed ? "§e§lDONE" : `#${checkpoint}`,
         });
         used[firstPlayer.player] = true;
       }
 
-      for (let i = 1; i < playersAtCheckpoint.length; i++) {
+      for (let i = firstPlayerIndex + 1; i < playersAtCheckpoint.length; i++) {
         const playerData = playersAtCheckpoint[i];
 
-        if (used[playerData.player]) continue;
+        if (used[playerData.player] || playerData.disconnected) continue;
 
         const timeDiff = playerData.time - firstPlayerTime;
 
         realScoreboard.push({
+          color: playerData.color,
           player: playerData.player,
-          value: this.formatTimeDiff(timeDiff),
+          value: playerData.completed
+            ? "§e§lDONE"
+            : this.formatTimeDiff(timeDiff),
         });
 
         used[playerData.player] = true;
@@ -90,23 +147,32 @@ export class SplitScoreboard extends PacketInterceptor {
   }
 
   private sendScoreboard(
-    scoreboard: { player: string; value: string }[],
+    scoreboard: { color: string; player: string; value: string }[],
     toClient: ServerClient,
   ): void {
     for (let i = 0; i < scoreboard.length; i++) {
-      let meta: PacketMeta = {
-        name: "scoreboard_team",
-        state: states.PLAY,
-      };
-
       let prefix: string;
-      let suffix: string = `§e${scoreboard[i].value}`.padStart(16);
+      let suffix: string = ` §e${scoreboard[i].value}`;
       if (scoreboard[i].player == "You") {
-        prefix = `§a${i + 1}. §a${scoreboard[i].player}`.padEnd(16);
+        prefix = `${i + 1}. §d${scoreboard[i].player}`;
       } else {
-        prefix = `§a${i + 1}. §7${scoreboard[i].player}`
-          .substring(0, 16)
-          .padEnd(16);
+        prefix = `${i + 1}. ${this.colorToChatCode[scoreboard[i].color]}${scoreboard[i].player}`;
+      }
+
+      if (prefix.length > 16) {
+        const newPrefix = prefix.substring(0, 16);
+        const rest = `${this.colorToChatCode[scoreboard[i].color]}${prefix.substring(16)}`;
+        const freeSpace = 16 - rest.length - suffix.length;
+        if (freeSpace < 0) {
+          suffix = `${rest.substring(0, rest.length + freeSpace)}${suffix}`;
+        } else {
+          suffix = `${rest}${" ".repeat(freeSpace)}${suffix}`;
+        }
+
+        prefix = newPrefix;
+      } else {
+        prefix = prefix.padEnd(16);
+        suffix = suffix.padStart(16);
       }
 
       let data = {
@@ -121,25 +187,82 @@ export class SplitScoreboard extends PacketInterceptor {
         players: undefined,
       };
 
-      toClient.write(meta.name, data);
+      toClient.write("scoreboard_team", data);
+    }
+
+    // fill the rest of the scoreboard with NOTHING
+    for (let i = scoreboard.length; i < 8; i++) {
+      let data = {
+        team: `team_${9 - i}`,
+        mode: 2,
+        name: `team_${9 - i}`,
+        prefix: "",
+        suffix: "",
+        friendlyFire: 3,
+        nameTagVisibility: "always",
+        color: 15,
+        players: undefined,
+      };
+
+      toClient.write("scoreboard_team", data);
     }
   }
 
   incomingPacket(packet: Packet): Packet {
     if (packet.meta.name === "respawn") {
       this.clearCheckpoints();
+      this.gameStarted = false;
       return packet;
     }
 
     if (packet.meta.name === "chat") {
       let text = constructChatMessage(packet.data.message);
 
-      if (text.includes("You completed the parkour")) {
-        this.clearCheckpoints();
+      if (text.includes("Opponents:") || text.includes("Opponent:")) {
+        this.gameStarted = true;
+      }
+
+      if (text.startsWith("COMPLETED!")) {
+        const ign = text.split(" ")[1];
+
+        const checkpoints = Object.keys(this.checkpoints)
+          .map(Number)
+          .sort((a, b) => b - a);
+
+        for (let p of this.checkpoints[checkpoints[0]]) {
+          if (p.player != ign) {
+            continue;
+          }
+
+          p.completed = true;
+          break;
+        }
+      }
+
+      if (text.includes("disconnected")) {
+        const ign = text.trim().split(" ")[0];
+
+        const checkpoints = Object.keys(this.checkpoints)
+          .map(Number)
+          .sort((a, b) => b - a);
+
+        for (let cp of checkpoints) {
+          for (let entry of this.checkpoints[cp]) {
+            if (entry.player != ign) {
+              continue;
+            }
+
+            entry.disconnected = true;
+          }
+        }
+
+        let scoreboard = this.updateScoreboard(this.checkpoints);
+        this.sendScoreboard(scoreboard, packet.toClient);
         return packet;
       }
 
-      const checkpointData = this.parseCheckpointMessage(text);
+      const color = this.getPlayerColor(packet.data.message);
+      const checkpointData = this.parseCheckpointMessage(text, color);
       if (checkpointData === null) {
         return packet;
       }
@@ -153,11 +276,12 @@ export class SplitScoreboard extends PacketInterceptor {
 
       return packet;
     } else if (packet.meta.name === "scoreboard_team") {
+      Logger.debug(JSON.stringify(packet.data));
       if (
+        this.gameStarted &&
         packet.data.team &&
-        /^team_[2-9]$/.test(packet.data.team) &&
-        packet.data.suffix &&
-        packet.data.suffix.includes("#")
+        /^team_[1-9]$/.test(packet.data.team) &&
+        !packet.data.players
       ) {
         packet.cancelled = true;
       }
