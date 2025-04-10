@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.0...v1.9.1) (2025-04-10)
+
+
+### Bug Fixes
+
+* replace localhost with the actual url ([7345c8d](https://github.com/Real-Parkour-Helper/pkdutils/commit/7345c8de0f5237e41ce48eb6e075145b136c4824))
+
 # [1.9.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.8.1...v1.9.0) (2025-04-10)
 
 
