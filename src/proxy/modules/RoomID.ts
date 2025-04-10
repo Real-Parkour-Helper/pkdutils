@@ -16,11 +16,11 @@ export class RoomID extends PacketInterceptor {
 
   private startPosition = new Vec3(18, 72, 13)
   private rooms: RoomName[] = []
-  private splitTracker: SplitTracker = new SplitTracker()
+  private splitTracker: SplitTracker
 
-
-  constructor() {
+  constructor(splitTracker: SplitTracker) {
     super("RoomID", "1.0.0")
+    this.splitTracker = splitTracker
   }
 
   /**
@@ -86,8 +86,11 @@ export class RoomID extends PacketInterceptor {
           nextRoomAt += checkpointCount[pastRoom]
         }
 
-        if (this.currentCheckpoint === nextRoomAt && this.rooms.length < 8) {
+        if (this.currentCheckpoint === nextRoomAt) {
           this.splitTracker.roomExit(text, this.currentRoomName, packet.toClient)
+          if (this.rooms.length >= 8) {
+            return packet;
+          }
           
           this.currentRoomNumber++
           this.currentRoomName = this.detectRoom()

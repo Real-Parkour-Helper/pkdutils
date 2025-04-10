@@ -7,9 +7,17 @@ import { RoomName } from "../data/roomData";
  */
 export class SplitTracker {
   private roomEnterSplit: number = 0;
+  private hasBoosted: boolean = false;
 
   private checkpointRegex =
     /CHECKPOINT! You reached checkpoint (\d+) in ([\d:\.]+)!/;
+
+  /**
+   * A function for BoostInterceptor to call when the player uses his Parkour Booster
+   */
+  recordBoost() {
+    this.hasBoosted = true;
+  }
 
   roomExit(
     chatMessage: string,
@@ -34,13 +42,14 @@ export class SplitTracker {
     const roomSplit = roomExitSplit - this.roomEnterSplit;
 
     Logger.debug(`sending a message for room ${roomName}`);
-    const text = `&9Finished &a${roomName} &9in &a${this.msToSplit(roomSplit)}s`;
+    const text = `&9Finished &a${roomName} ${this.hasBoosted ? "&awith boost" : "&cwithout boost"} &9in &a${this.msToSplit(roomSplit)}s`;
     toClient.write("chat", {
       message: `{ "text": "${text}" }`,
       position: 0,
     });
 
     this.roomEnterSplit = roomExitSplit;
+    this.hasBoosted = false;
   }
 
   /**
@@ -77,6 +86,6 @@ export class SplitTracker {
       .toString()
       .padStart(2, "0");
 
-    return `${seconds}.${formattedMs}s`;
+    return `${seconds}.${formattedMs}`;
   }
 }
