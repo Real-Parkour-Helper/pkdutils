@@ -1,3 +1,14 @@
+## [1.8.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.8.0...v1.8.1) (2025-04-10)
+
+
+### Bug Fixes
+
+* add colors to the scoreboard ([2d9b17c](https://github.com/Real-Parkour-Helper/pkdutils/commit/2d9b17c8a8826cf8bb2cacb012af4b5ed979e175))
+* display "DONE" when a player finishes the game ([8685b38](https://github.com/Real-Parkour-Helper/pkdutils/commit/8685b3843aae9ab3a43febfdf668f321cbe340e1))
+* fit as much of the ign as possible ([6a7fcd7](https://github.com/Real-Parkour-Helper/pkdutils/commit/6a7fcd79de5cfb4280d34af170a2b860b6ce82cc))
+* remove players from the scoreboard when they disconnect ([39ff0e1](https://github.com/Real-Parkour-Helper/pkdutils/commit/39ff0e180563c36609887cecb6f97698cfa4b4e0))
+* replace ALL empty lines with empty strings ([7ae87e1](https://github.com/Real-Parkour-Helper/pkdutils/commit/7ae87e12e45acfc8a293869498e7170026a5afc2))
+
 # [1.8.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.7.0...v1.8.0) (2025-04-10)
 
 
