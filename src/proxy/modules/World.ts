@@ -1,6 +1,7 @@
 import { PacketInterceptor } from "../packet/PacketInterceptor"
 import { Packet } from "../packet/Packet"
 import { Vec3 } from "vec3"
+import { Logger } from "../../util/Logger"
 
 const Chunk = require("prismarine-chunk")("1.8.9")
 
@@ -46,6 +47,11 @@ export class World extends PacketInterceptor {
     if (packet.meta.name === "map_chunk") {
       // Handle chunks
       const chunkKey = `${packet.data.x},${packet.data.z}`
+
+      if (packet.data.groundUp && packet.data.bitMap === 0) {
+        World.chunks.delete(chunkKey)
+        return packet
+      }
 
       // I'm not sure what to do for this, or what the server is trying to achieve here. Maybe a whole chunk update?
       if (World.chunks.has(chunkKey)) return packet
