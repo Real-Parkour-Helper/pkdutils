@@ -65,7 +65,7 @@ export class RoomID extends PacketInterceptor {
 
     if (packet.meta.name === "chat") {
       const text = constructChatMessage(packet.data.message)
-      if ((text.startsWith(" ") && text.trim().startsWith("Opponents:"))) {
+      if ((text.startsWith(" ") && (text.trim().startsWith("Opponents:") || text.trim().startsWith("Opponent:")))) {
         this.currentRoomNumber = 0
         this.currentRoomName = this.detectRoom()
 

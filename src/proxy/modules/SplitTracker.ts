@@ -1,6 +1,7 @@
 import { ServerClient } from "minecraft-protocol";
 import { Logger } from "../../util/Logger";
 import { RoomName } from "../data/roomData";
+import { PlayerPositionData } from "./PlayerPosition";
 
 /**
  * SplitTracker class for parsing and storing player's splits
@@ -8,6 +9,7 @@ import { RoomName } from "../data/roomData";
 export class SplitTracker {
   private roomEnterSplit: number = 0;
   private hasBoosted: boolean = false;
+  private boostPosition: PlayerPositionData | null = null;
 
   private checkpointRegex =
     /CHECKPOINT! You reached checkpoint (\d+) in ([\d:\.]+)!/;
@@ -15,8 +17,10 @@ export class SplitTracker {
   /**
    * A function for BoostInterceptor to call when the player uses his Parkour Booster
    */
-  recordBoost() {
+  recordBoost(pos: PlayerPositionData) {
     this.hasBoosted = true;
+    this.boostPosition = pos;
+    Logger.debug(`Player has boosted from ${JSON.stringify(pos)}`);
   }
 
   roomExit(
@@ -41,15 +45,35 @@ export class SplitTracker {
     const roomExitSplit = this.splitToMs(splitString);
     const roomSplit = roomExitSplit - this.roomEnterSplit;
 
-    Logger.debug(`sending a message for room ${roomName}`);
-    const text = `&9Finished &a${roomName} ${this.hasBoosted ? "&awith boost" : "&cwithout boost"} &9in &a${this.msToSplit(roomSplit)}s`;
-    toClient.write("chat", {
-      message: `{ "text": "${text}" }`,
-      position: 0,
-    });
+    if (this.hasBoosted && this.boostPosition) {
+      const boostStrat = this.determineBoostStrat(roomName, this.boostPosition);
+      const text = `§9Finished §a${roomName} (${boostStrat}) §a with boost §9in §a${this.msToSplit(roomSplit)}s`;
+      toClient.write("chat", {
+        message: `{ "text": "${text}" }`,
+        position: 0,
+      });
+    } else {
+      Logger.debug(`sending a message for room ${roomName}`);
+      const text = `§9Finished §a${roomName} §cwithout boost §9in §a${this.msToSplit(roomSplit)}s`;
+      toClient.write("chat", {
+        message: `{ "text": "${text}" }`,
+        position: 0,
+      });
+    }
 
     this.roomEnterSplit = roomExitSplit;
     this.hasBoosted = false;
+  }
+
+  /**
+   * Checks closest regions to determine which boost strategy to assign
+   * to assign the player's boost to
+   */
+  private determineBoostStrat(
+    room: RoomName,
+    boostPos: PlayerPositionData,
+  ): number {
+    return 0;
   }
 
   /**
