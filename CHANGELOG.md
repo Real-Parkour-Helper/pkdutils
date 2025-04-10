@@ -1,3 +1,10 @@
+## [1.9.2](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.1...v1.9.2) (2025-04-10)
+
+
+### Bug Fixes
+
+* output personal boostless time instead of best ([ae34e6b](https://github.com/Real-Parkour-Helper/pkdutils/commit/ae34e6b83065652d01a6eee8527f38c1f51e0373))
+
 ## [1.9.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.0...v1.9.1) (2025-04-10)
 
 
