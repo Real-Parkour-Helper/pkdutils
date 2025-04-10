@@ -13,6 +13,8 @@ export class BoostInterceptor extends PacketInterceptor {
   private positionTracker: PlayerPosition;
   private timer: Timer;
 
+  private lastBoostTime: number = 0;
+
   constructor(
     splitTracker: SplitTracker,
     positionTracker: PlayerPosition,
@@ -25,7 +27,8 @@ export class BoostInterceptor extends PacketInterceptor {
   }
 
   incomingPacket(packet: Packet): Packet {
-    if (packet.meta.name === "experience" && packet.data.level === 61 && packet.data.experienceBar === 1) {
+    if (packet.meta.name === "experience" && packet.data.level === 60 && Date.now() - this.lastBoostTime > 5000) { // 5000 just in case some packets are really really delayed
+      this.lastBoostTime = Date.now()
       this.splitTracker.recordBoost(
         this.positionTracker.pos,
         this.timer.currentTime,
