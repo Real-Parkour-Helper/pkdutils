@@ -1,25 +1,12 @@
 import { ServerClient } from "minecraft-protocol";
 import { Logger } from "../../util/Logger";
-import { RoomName } from "../data/roomData";
+import { boostRegions, RoomName } from "../data/roomData";
 import { PlayerPositionData } from "./PlayerPosition";
 import * as fs from "fs";
 import * as path from "path";
 import { msToSplit, splitToMs } from "../util/splitUtils";
-
-type BoostStrat = {
-  name: string;
-  time: number; // Best time in milliseconds
-  boost_time: number; // Time at which the boost was used
-};
-
-type RoomSplits = {
-  boostless_time: number;
-  boost_strats: BoostStrat[];
-};
-
-type SplitsData = {
-  [roomName: string]: RoomSplits;
-};
+import { Vec3 } from "vec3";
+import { defaultSplits, SplitsData } from "../data/defaultSplits";
 
 /**
  * SplitTracker class for parsing and storing player's splits
@@ -61,7 +48,7 @@ export class SplitTracker {
         this.splitsData = JSON.parse(fileData);
         Logger.debug(`Loaded splits data from ${this.splitsFilePath}`);
       } else {
-        this.splitsData = {}; // TODO: Create a default splits data object
+        this.splitsData = defaultSplits;
         this.saveSplits();
         Logger.debug(`Created new splits file at ${this.splitsFilePath}`);
       }
@@ -100,6 +87,7 @@ export class SplitTracker {
   roomExit(
     chatMessage: string,
     roomName: RoomName | null,
+    roomStartPos: Vec3,
     toClient: ServerClient,
   ) {
     if (!roomName) {
@@ -123,6 +111,7 @@ export class SplitTracker {
       const boostStratName = this.determineBoostStrat(
         roomName,
         this.boostPosition,
+        roomStartPos,
       );
 
       const isPersonalBest = this.isBoostStratPersonalBest(
@@ -218,7 +207,55 @@ export class SplitTracker {
   private determineBoostStrat(
     room: RoomName,
     boostPos: PlayerPositionData,
+    roomStartPos: Vec3,
   ): string {
-    return "Unknown Strat";
+    Logger.debug(JSON.stringify(roomStartPos));
+
+    const regions = boostRegions[room];
+    if (!regions || regions.length === 0) {
+      Logger.error(
+        `Didn't find any boost regions for room ${room}. This is not supposed to happen, please report it`,
+      );
+      return "Unknown Strat";
+    }
+
+    Logger.debug(JSON.stringify(boostPos));
+    const relX = boostPos.x - roomStartPos.x;
+    const relZ = boostPos.z - roomStartPos.z;
+
+    Logger.debug(`Player's relative position: ${relX} ${relZ}`);
+
+    let closestRegion = null;
+    let minDistance = Infinity;
+
+    for (const region of regions) {
+      if (
+        relX >= region.region.min_x &&
+        relX <= region.region.max_x &&
+        relZ >= region.region.min_z &&
+        relZ <= region.region.max_z
+      ) {
+        return region.name;
+      }
+
+      const closestX = Math.max(
+        region.region.min_x,
+        Math.min(relX, region.region.max_x),
+      );
+      const closestZ = Math.max(
+        region.region.min_z,
+        Math.min(relZ, region.region.max_z),
+      );
+
+      const distanceSquared =
+        Math.pow(closestX - relX, 2) + Math.pow(closestZ - relZ, 2);
+
+      if (distanceSquared < minDistance) {
+        minDistance = distanceSquared;
+        closestRegion = region;
+      }
+    }
+
+    return closestRegion ? closestRegion.name : "Unknown Strat";
   }
 }

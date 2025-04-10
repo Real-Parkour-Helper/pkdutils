@@ -15,7 +15,11 @@ export class PlayerPosition extends PacketInterceptor {
   private _pos: PlayerPositionData = { x: 0, y: 0, z: 0 };
 
   get pos(): PlayerPositionData {
-    return this._pos;
+    return {
+      x: this._pos.x,
+      y: this._pos.y,
+      z: this._pos.z,
+    };
   }
 
   constructor() {

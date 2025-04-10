@@ -15,6 +15,7 @@ export class RoomID extends PacketInterceptor {
   private checkpointRegex = /CHECKPOINT! You reached checkpoint (\d+) in [\d:\.]+!/
 
   private startPosition = new Vec3(18, 72, 13)
+  private currentRoomStartPosition = this.startPosition;
   private rooms: RoomName[] = []
   private splitTracker: SplitTracker
 
@@ -40,7 +41,7 @@ export class RoomID extends PacketInterceptor {
    * Detect the current room and return its name.
    * @private
    */
-  private detectRoom(): RoomName | null {
+  private detectRoom(): {room: RoomName, startPos: Vec3 } | null {
     const zAddend = 57 * this.currentRoomNumber
     const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
 
@@ -48,7 +49,7 @@ export class RoomID extends PacketInterceptor {
       const allBlocksMatch = blocks.every(blockData => this.verifyBlock(startPos, blockData))
 
       if (allBlocksMatch) { // we found our room
-        return room as RoomName
+        return { room: room as RoomName, startPos: startPos }
       }
     }
 
@@ -68,9 +69,10 @@ export class RoomID extends PacketInterceptor {
       const text = constructChatMessage(packet.data.message)
       if ((text.startsWith(" ") && (text.trim().startsWith("Opponents:") || text.trim().startsWith("Opponent:")))) {
         this.currentRoomNumber = 0
-        this.currentRoomName = this.detectRoom()
+        const detectedRoom = this.detectRoom()
 
-        if (this.currentRoomName) {
+        if (detectedRoom) {
+          this.currentRoomName = detectedRoom.room
           this.rooms.push(this.currentRoomName)
           Logger.debug(`You are in room ${this.currentRoomName} (${this.currentRoomNumber})`)
         } else {
@@ -88,15 +90,17 @@ export class RoomID extends PacketInterceptor {
         }
 
         if (this.currentCheckpoint === nextRoomAt) {
-          this.splitTracker.roomExit(text, this.currentRoomName, packet.toClient)
+          this.splitTracker.roomExit(text, this.currentRoomName, this.currentRoomStartPosition,packet.toClient)
           if (this.rooms.length >= 8) {
             return packet;
           }
           
           this.currentRoomNumber++
-          this.currentRoomName = this.detectRoom()
+          const detectedRoom = this.detectRoom()
 
-          if (this.currentRoomName) {
+          if (detectedRoom) {
+            this.currentRoomName = detectedRoom.room
+            this.currentRoomStartPosition = detectedRoom.startPos
             this.rooms.push(this.currentRoomName)
             Logger.debug(`You are in room ${this.currentRoomName} (${this.currentRoomNumber})`)
           } else {

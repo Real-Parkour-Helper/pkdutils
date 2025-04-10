@@ -33,11 +33,8 @@ export class Timer extends PacketInterceptor {
       return packet;
     }
 
-    Logger.debug(JSON.stringify(match));
-
     const timeStr = match[0];
     this._currentTime = splitToMs(timeStr);
-    Logger.debug(this._currentTime);
 
     return packet;
   }
