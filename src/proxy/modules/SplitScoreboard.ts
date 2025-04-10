@@ -9,6 +9,13 @@ interface CheckpointData {
   player: string;
   checkpoint: number;
   time: number;
+  disconnected: boolean;
+}
+
+interface ScoreboardEntry {
+  color: string;
+  player: string;
+  value: string;
 }
 
 interface CheckpointMap {
@@ -42,6 +49,7 @@ export class SplitScoreboard extends PacketInterceptor {
       player: match[1],
       checkpoint: parseInt(match[2], 10),
       time: this.timeToMilliseconds(match[3]),
+      disconnected: false,
     };
   }
 
@@ -76,11 +84,9 @@ export class SplitScoreboard extends PacketInterceptor {
     return "";
   }
 
-  private updateScoreboard(
-    scoreboardMap: CheckpointMap,
-  ): { color: string; player: string; value: string }[] {
+  private updateScoreboard(scoreboardMap: CheckpointMap): ScoreboardEntry[] {
     let used: { [player: string]: boolean } = {};
-    let realScoreboard: { color: string; player: string; value: string }[] = [];
+    let realScoreboard: ScoreboardEntry[] = [];
 
     const checkpoints = Object.keys(scoreboardMap)
       .map(Number)
@@ -91,7 +97,19 @@ export class SplitScoreboard extends PacketInterceptor {
 
       if (playersAtCheckpoint.length === 0) continue;
 
-      const firstPlayer = playersAtCheckpoint[0];
+      let firstPlayerIndex = -1;
+      for (let i = 0; i < playersAtCheckpoint.length; i++) {
+        if (!playersAtCheckpoint[i].disconnected) {
+          firstPlayerIndex = i;
+          break;
+        }
+      }
+
+      if (firstPlayerIndex == -1) {
+        continue;
+      }
+
+      const firstPlayer = playersAtCheckpoint[firstPlayerIndex];
       const firstPlayerTime = firstPlayer.time;
 
       if (!used[firstPlayer.player]) {
@@ -103,18 +121,20 @@ export class SplitScoreboard extends PacketInterceptor {
         used[firstPlayer.player] = true;
       }
 
-      for (let i = 1; i < playersAtCheckpoint.length; i++) {
+      for (let i = firstPlayerIndex + 1; i < playersAtCheckpoint.length; i++) {
         const playerData = playersAtCheckpoint[i];
 
         if (used[playerData.player]) continue;
 
         const timeDiff = playerData.time - firstPlayerTime;
 
-        realScoreboard.push({
-          color: playerData.color,
-          player: playerData.player,
-          value: this.formatTimeDiff(timeDiff),
-        });
+        if (!playerData.disconnected) {
+          realScoreboard.push({
+            color: playerData.color,
+            player: playerData.player,
+            value: this.formatTimeDiff(timeDiff),
+          });
+        }
 
         used[playerData.player] = true;
       }
@@ -180,6 +200,30 @@ export class SplitScoreboard extends PacketInterceptor {
       if (text.includes("You completed the parkour")) {
         this.clearCheckpoints();
         return packet;
+      }
+
+      if (text.includes("disconnected")) {
+        const ign = text.trim().split(" ")[0];
+
+        const checkpoints = Object.keys(this.checkpoints)
+          .map(Number)
+          .sort((a, b) => b - a);
+
+        let foundPlayer = false;
+        for (let cp of checkpoints) {
+          for (let entry of this.checkpoints[cp]) {
+            if (entry.player != ign) {
+              continue;
+            }
+
+            entry.disconnected = true;
+            foundPlayer = true;
+          }
+
+          if (foundPlayer) {
+            break;
+          }
+        }
       }
 
       const color = this.getPlayerColor(packet.data.message);
