@@ -1,3 +1,19 @@
+# [1.7.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.6.0...v1.7.0) (2025-04-07)
+
+
+### Features
+
+* run packet interceptors only in parkour duels by default (boolean in constructor) ([b4e67f3](https://github.com/Real-Parkour-Helper/pkdutils/commit/b4e67f38ff0b4e32bb1dd53d932025949b3f67c7))
+* track location on hypixel ([5a7adb8](https://github.com/Real-Parkour-Helper/pkdutils/commit/5a7adb809cc296f4bf888c364f8356c4a1c67513))
+
+# [1.6.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.5.1...v1.6.0) (2025-04-07)
+
+
+### Features
+
+* room data ([f01cd2c](https://github.com/Real-Parkour-Helper/pkdutils/commit/f01cd2c60f75f7c44bf37c3d2375684cb1c4e9c0))
+* room identification module (simply stores rooms from the current run, does nothing with them yet) ([5a7f8d0](https://github.com/Real-Parkour-Helper/pkdutils/commit/5a7f8d0e676a93399fcc809c3443b8be69cbf1fa))
+
 ## [1.5.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.5.0...v1.5.1) (2025-04-05)
 
 

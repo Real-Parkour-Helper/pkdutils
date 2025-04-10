@@ -11,6 +11,7 @@ import { SplitTracker } from "./modules/SplitTracker";
 import { BoostInterceptor } from "./modules/BoostInterceptor";
 import { PlayerPosition } from "./modules/PlayerPosition";
 import { Timer } from "./modules/Timer";
+import { Location } from "./modules/Location"
 
 /**
  * Proxy class
@@ -56,7 +57,7 @@ export class Proxy {
         let packet = new Packet(meta, data, toClient, toServer);
         for (const interceptor of this.interceptors) {
           try {
-            packet = interceptor.incomingPacket(packet);
+            packet = interceptor.in(packet);
           } catch (error) {
             Logger.error(error);
           }
@@ -79,7 +80,7 @@ export class Proxy {
         // Forward all packets to the server
         let packet = new Packet(meta, data, toClient, toServer);
         for (const interceptor of this.interceptors) {
-          packet = interceptor.outgoingPacket(packet);
+          packet = interceptor.out(packet);
         }
 
         if (!packet.cancelled) {
@@ -102,6 +103,7 @@ export class Proxy {
       ...[
         new SplitScoreboard(),
         new World(),
+        new Location(),
         positionTracker,
         timer,
         new BoostInterceptor(this.splitTracker, positionTracker, timer),

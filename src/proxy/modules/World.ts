@@ -10,7 +10,7 @@ const Chunk = require("prismarine-chunk")("1.8.9")
  */
 export class World extends PacketInterceptor {
   constructor() {
-    super("World", "1.0.0")
+    super("World", "1.0.0", false)
   }
 
   private static chunks: Map<string, typeof Chunk> = new Map()
