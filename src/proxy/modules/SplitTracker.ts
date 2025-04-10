@@ -7,6 +7,7 @@ import * as path from "path";
 import { msToSplit, splitToMs } from "../util/splitUtils";
 import { Vec3 } from "vec3";
 import { defaultSplits, SplitsData } from "../data/defaultSplits";
+import { titleCase } from "../util/generalUtils"
 
 /**
  * SplitTracker class for parsing and storing player's splits
@@ -123,7 +124,7 @@ export class SplitTracker {
 
       this.updateBoostStratSplits(roomName, boostStratName, roomSplit);
 
-      const text = `§9Finished §a${roomName} (${boostStratName}) §6 with boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
+      const text = `§9Finished §a${titleCase(roomName)} (${boostStratName}) §6 with boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
       toClient.write("chat", {
         message: `{ "text": "${text}" }`,
         position: 0,
@@ -135,7 +136,7 @@ export class SplitTracker {
       this.updateBestSplits(roomName, roomSplit);
 
       Logger.debug(`sending a message for room ${roomName}`);
-      const text = `§9Finished §a${roomName} §6without boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
+      const text = `§9Finished §a${titleCase(roomName)} §6without boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
       toClient.write("chat", {
         message: `{ "text": "${text}" }`,
         position: 0,
