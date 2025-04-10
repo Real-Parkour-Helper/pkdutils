@@ -1,3 +1,11 @@
+## [1.9.3](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.2...v1.9.3) (2025-04-10)
+
+
+### Bug Fixes
+
+* packet interceptors able to specify packets to receive regardless of in-game status ([8ef74e3](https://github.com/Real-Parkour-Helper/pkdutils/commit/8ef74e328e19d05248445617809a05e856e7fa82))
+* re-arrange interceptor order ([1a1a4df](https://github.com/Real-Parkour-Helper/pkdutils/commit/1a1a4df6fe5a20f5fca7fe51a3a7472acd1bd730))
+
 ## [1.9.2](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.1...v1.9.2) (2025-04-10)
 
 
