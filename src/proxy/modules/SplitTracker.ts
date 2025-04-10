@@ -124,7 +124,7 @@ export class SplitTracker {
 
       this.updateBoostStratSplits(roomName, boostStratName, roomSplit);
 
-      const text = `§9Finished §a${titleCase(roomName)} (${boostStratName}) §6 with boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
+      const text = `§9Finished §a${titleCase(roomName)} (${boostStratName}) §6with boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
       toClient.write("chat", {
         message: `{ "text": "${text}" }`,
         position: 0,
