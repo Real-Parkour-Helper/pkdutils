@@ -115,12 +115,20 @@ export class SplitTracker {
         roomStartPos,
       );
 
-      const isPersonalBest = this.isBoostStratPersonalBest(
+      const diff = this.boostStratPBDiff(
         roomName,
         boostStratName,
         roomSplit,
       );
-      const pbText = isPersonalBest ? " §e§lPB!" : "";
+
+      const isFirstPB = 600000 + diff === roomSplit
+      let pbText = ""
+      if (diff > 0) {
+        pbText = ` §c§l(+${msToSplit(diff)}s)`
+      } else if (diff < 0 && !isFirstPB) {
+        pbText = ` §e§lPB! §a§l(-${msToSplit(diff)}s)`
+      }
+
 
       this.updateBoostStratSplits(roomName, boostStratName, roomSplit);
 
@@ -130,8 +138,15 @@ export class SplitTracker {
         position: 0,
       });
     } else {
-      const isPersonalBest = this.isBoostlessPersonalBest(roomName, roomSplit);
-      const pbText = isPersonalBest ? " §e§lPB!" : "";
+      const diff = this.isBoostlessPersonalBest(roomName, roomSplit);
+
+      const isFirstPB = 600000 + diff === roomSplit
+      let pbText = ""
+      if (diff > 0) {
+        pbText = ` §c§l(+${msToSplit(diff)}s)`
+      } else if (diff < 0 && !isFirstPB) {
+        pbText = ` §e§lPB! §a§l(-${msToSplit(diff)}s)`
+      }
 
       this.updateBestSplits(roomName, roomSplit);
 
@@ -161,8 +176,8 @@ export class SplitTracker {
   /**
    * Check if the current boostless time is a personal best
    */
-  private isBoostlessPersonalBest(roomName: string, time: number): boolean {
-    return !this.hasBoosted && time < this.splitsData[roomName].boostless_time;
+  private isBoostlessPersonalBest(roomName: string, time: number): number {
+    return time - this.splitsData[roomName].boostless_time;
   }
 
   /**
@@ -188,17 +203,17 @@ export class SplitTracker {
   /**
    * Check if the current boost strategy time is a personal best
    */
-  private isBoostStratPersonalBest(
+  private boostStratPBDiff(
     roomName: string,
     stratName: string, // TODO: just use an index instead
     time: number,
-  ): boolean {
+  ): number {
     const strat = this.splitsData[roomName].boost_strats.find(
       (s) => s.name === stratName,
     );
-    if (!strat) return true;
+    if (!strat) return -1000;
 
-    return time < strat.time;
+    return time - strat.time;
   }
 
   /**
