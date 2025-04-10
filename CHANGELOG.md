@@ -1,3 +1,26 @@
+# [1.8.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.7.0...v1.8.0) (2025-04-10)
+
+
+### Bug Fixes
+
+* detect boost using xp bar ([15e3a3b](https://github.com/Real-Parkour-Helper/pkdutils/commit/15e3a3b68e257bfbcba5737bf929d7fcaf033b69))
+* only show +/- on PB splits (and PB!) if it is not the first time running the room ([34ed35c](https://github.com/Real-Parkour-Helper/pkdutils/commit/34ed35c4f572d6d30d93ed12ac9abf11042f3cb9))
+* remove second space ([1f7fd42](https://github.com/Real-Parkour-Helper/pkdutils/commit/1f7fd4249f42a8a79e9dc56824fda8c5095b7854))
+* track boosts with 60s left on xp bar instead of 61 ([16f2a6b](https://github.com/Real-Parkour-Helper/pkdutils/commit/16f2a6baee3a57eefd6e7b6ee1309abdadbee113))
+
+
+### Features
+
+* add a BoostInterceptor to log when the player boosts ([85083ec](https://github.com/Real-Parkour-Helper/pkdutils/commit/85083ec7cde90e85ca4ff8e28b87d15ff722a20f))
+* add a simple split tracker that sends a message in chat ([16d3b23](https://github.com/Real-Parkour-Helper/pkdutils/commit/16d3b233b867cd6e99617ab184918c3384f68e54))
+* add boost regions data ([e4e86e4](https://github.com/Real-Parkour-Helper/pkdutils/commit/e4e86e4eb7b47336e7f07de569d4d4aa12b41742))
+* add default splits ([67d56af](https://github.com/Real-Parkour-Helper/pkdutils/commit/67d56af6ce2bdf4ec3889f87a2c5b4f7cfa0f3ac))
+* capitalize room names in chat messages ([fce3f55](https://github.com/Real-Parkour-Helper/pkdutils/commit/fce3f55c3c1fac8838a6a9ca18e225da2638da03))
+* determine which boost strategy was used ([3b34923](https://github.com/Real-Parkour-Helper/pkdutils/commit/3b34923306e7bc7eaed59e7d10d6ff1735e433ee))
+* record player's position when they boost ([251e781](https://github.com/Real-Parkour-Helper/pkdutils/commit/251e781029ac5392e55233ba171732bb020f6c3f))
+* save splits to a file ([8224db6](https://github.com/Real-Parkour-Helper/pkdutils/commit/8224db6037fe30c9f8e675d33218bd2a91dbc83c))
+* track boost time ([e943388](https://github.com/Real-Parkour-Helper/pkdutils/commit/e9433885e8133c9ebdc382dea7b853fcb251ea94))
+
 # [1.7.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.6.0...v1.7.0) (2025-04-07)
 
 
