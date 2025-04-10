@@ -19,8 +19,7 @@ export class RoomID extends PacketInterceptor {
   private currentRoomStartPosition = this.startPosition;
   private rooms: RoomName[] = []
   private splitTracker: SplitTracker
-  // private calcUrl = "https://wired-cod-kindly.ngrok-free.app/api/pkdutils/calc"
-  private calcUrl = "http://localhost:6969/api/pkdutils/calc"
+  private calcUrl = "https://wired-cod-kindly.ngrok-free.app/api/pkdutils/calc"
 
   constructor(splitTracker: SplitTracker) {
     super("RoomID", "1.0.0")
