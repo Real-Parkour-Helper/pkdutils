@@ -9,7 +9,6 @@ import { Timer } from "./Timer";
  * BoostInterceptor class for keeping track of when player uses his boost
  */
 export class BoostInterceptor extends PacketInterceptor {
-  private entityId: number | null = null;
   private splitTracker: SplitTracker;
   private positionTracker: PlayerPosition;
   private timer: Timer;
@@ -26,33 +25,13 @@ export class BoostInterceptor extends PacketInterceptor {
   }
 
   incomingPacket(packet: Packet): Packet {
-    if (packet.meta.name == "login" && packet.data.gameMode == 2) {
-      this.entityId = packet.data.entityId;
-      Logger.debug(`Player ${this.entityId} logged in`);
-      return packet;
+    if (packet.meta.name === "experience" && packet.data.level === 61 && packet.data.experienceBar === 1) {
+      this.splitTracker.recordBoost(
+        this.positionTracker.pos,
+        this.timer.currentTime,
+      );
     }
 
-    if (
-      packet.meta.name == "entity_velocity" &&
-      packet.data.entityId == this.entityId
-    ) {
-      Logger.debug(JSON.stringify(packet.data));
-    }
-
-    if (
-      packet.meta.name != "entity_velocity" ||
-      packet.data.entityId != this.entityId ||
-      (packet.data.velocityX == 0 &&
-        packet.data.velocityY == 0 &&
-        packet.data.velocityZ == 0)
-    ) {
-      return packet;
-    }
-
-    this.splitTracker.recordBoost(
-      this.positionTracker.pos,
-      this.timer.currentTime,
-    );
     return packet;
   }
 
