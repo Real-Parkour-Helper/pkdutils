@@ -10,6 +10,7 @@ interface CheckpointData {
   checkpoint: number;
   time: number;
   disconnected: boolean;
+  completed: boolean;
 }
 
 interface ScoreboardEntry {
@@ -50,6 +51,7 @@ export class SplitScoreboard extends PacketInterceptor {
       checkpoint: parseInt(match[2], 10),
       time: this.timeToMilliseconds(match[3]),
       disconnected: false,
+      completed: false,
     };
   }
 
@@ -116,7 +118,7 @@ export class SplitScoreboard extends PacketInterceptor {
         realScoreboard.push({
           color: firstPlayer.color,
           player: firstPlayer.player,
-          value: `#${checkpoint}`,
+          value: firstPlayer.completed ? "§e§lDONE" : `#${checkpoint}`,
         });
         used[firstPlayer.player] = true;
       }
@@ -132,7 +134,9 @@ export class SplitScoreboard extends PacketInterceptor {
           realScoreboard.push({
             color: playerData.color,
             player: playerData.player,
-            value: this.formatTimeDiff(timeDiff),
+            value: playerData.completed
+              ? "§e§lDONE"
+              : this.formatTimeDiff(timeDiff),
           });
         }
 
@@ -186,6 +190,23 @@ export class SplitScoreboard extends PacketInterceptor {
 
       toClient.write("scoreboard_team", data);
     }
+
+    // fill the rest of the scoreboard with NOTHING
+    for (let i = scoreboard.length + 1; i < 8; i++) {
+      let data = {
+        team: `team_${9 - i}`,
+        mode: 2,
+        name: `team_${9 - i}`,
+        prefix: "",
+        suffix: "",
+        friendlyFire: 3,
+        nameTagVisibility: "always",
+        color: 15,
+        players: undefined,
+      };
+
+      toClient.write("scoreboard_team", data);
+    }
   }
 
   incomingPacket(packet: Packet): Packet {
@@ -197,9 +218,21 @@ export class SplitScoreboard extends PacketInterceptor {
     if (packet.meta.name === "chat") {
       let text = constructChatMessage(packet.data.message);
 
-      if (text.includes("You completed the parkour")) {
-        this.clearCheckpoints();
-        return packet;
+      if (text.startsWith("COMPLETED!")) {
+        const ign = text.split(" ")[1];
+
+        const checkpoints = Object.keys(this.checkpoints)
+          .map(Number)
+          .sort((a, b) => b - a);
+
+        for (let p of this.checkpoints[checkpoints[0]]) {
+          if (p.player != ign) {
+            continue;
+          }
+
+          p.completed = true;
+          break;
+        }
       }
 
       if (text.includes("disconnected")) {
@@ -224,6 +257,10 @@ export class SplitScoreboard extends PacketInterceptor {
             break;
           }
         }
+
+        let scoreboard = this.updateScoreboard(this.checkpoints);
+        this.sendScoreboard(scoreboard, packet.toClient);
+        return packet;
       }
 
       const color = this.getPlayerColor(packet.data.message);
