@@ -1,3 +1,15 @@
+# [1.12.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.11.0...v1.12.0) (2025-04-11)
+
+
+### Bug Fixes
+
+* add a newline before outputting optimal personal time ([0374755](https://github.com/Real-Parkour-Helper/pkdutils/commit/03747556a2e1cacfaacb54b51331a12a354472f6))
+
+
+### Features
+
+* add commands to configure scoreboard ([204a1d5](https://github.com/Real-Parkour-Helper/pkdutils/commit/204a1d53f55d00f88ae0facda8c813d8594c3efe))
+
 # [1.11.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.10.0...v1.11.0) (2025-04-11)
 
 
