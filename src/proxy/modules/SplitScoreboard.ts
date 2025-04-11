@@ -23,7 +23,12 @@ interface CheckpointMap {
   [checkpointId: number]: CheckpointData[];
 }
 
+export type ScoreboardMode = "default" | "allplayers" | "splits";
+
 export class SplitScoreboard extends PacketInterceptor {
+  private mode: ScoreboardMode = "splits";
+  private defaultScoreboardItems: Packet[] = [];
+
   private gameStarted: boolean = false;
   private checkpoints: CheckpointMap = {};
   private colorToChatCode: Record<string, string> = {
@@ -35,6 +40,14 @@ export class SplitScoreboard extends PacketInterceptor {
 
   constructor() {
     super("SplitScoreboard", "1.0.0", true, ["respawn"]);
+  }
+
+  SetMode(mode: ScoreboardMode, toClient: ServerClient): void {
+    Logger.info("Changing scoreboard mode to", mode);
+
+    this.mode = mode;
+    const scoreboard = this.updateScoreboard(this.checkpoints);
+    this.sendScoreboard(scoreboard, toClient);
   }
 
   private parseCheckpointMessage(
@@ -131,12 +144,18 @@ export class SplitScoreboard extends PacketInterceptor {
 
         const timeDiff = playerData.time - firstPlayerTime;
 
+        let displayValue = this.formatTimeDiff(timeDiff);
+        if (this.mode == "allplayers") {
+          displayValue = `#${checkpoint}`;
+        }
+        if (playerData.completed) {
+          displayValue = "§e§lDONE";
+        }
+
         realScoreboard.push({
           color: playerData.color,
           player: playerData.player,
-          value: playerData.completed
-            ? "§e§lDONE"
-            : this.formatTimeDiff(timeDiff),
+          value: displayValue,
         });
 
         used[playerData.player] = true;
@@ -150,6 +169,14 @@ export class SplitScoreboard extends PacketInterceptor {
     scoreboard: { color: string; player: string; value: string }[],
     toClient: ServerClient,
   ): void {
+    if (this.mode == "default") {
+      for (let p of this.defaultScoreboardItems) {
+        p.toClient.write(p.meta.name, p.data);
+      }
+
+      return;
+    }
+
     for (let i = 0; i < scoreboard.length; i++) {
       let prefix: string;
       let suffix: string = ` §e${scoreboard[i].value}`;
@@ -212,6 +239,7 @@ export class SplitScoreboard extends PacketInterceptor {
     if (packet.meta.name === "respawn") {
       this.clearCheckpoints();
       this.gameStarted = false;
+      this.defaultScoreboardItems = [];
       return packet;
     }
 
@@ -275,13 +303,20 @@ export class SplitScoreboard extends PacketInterceptor {
       this.sendScoreboard(scoreboard, packet.toClient);
 
       return packet;
-    } else if (packet.meta.name === "scoreboard_team") {
+    } else if (
+      packet.meta.name === "scoreboard_team" &&
+      this.mode != "default"
+    ) {
       if (
         this.gameStarted &&
         packet.data.team &&
         /^team_[1-9]$/.test(packet.data.team) &&
         !packet.data.players
       ) {
+        if (/^team_[1-6]$/.test(packet.data.team)) {
+          this.defaultScoreboardItems.push(packet);
+        }
+
         packet.cancelled = true;
       }
 
