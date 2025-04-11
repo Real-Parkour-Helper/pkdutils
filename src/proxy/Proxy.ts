@@ -11,8 +11,9 @@ import { SplitTracker } from "./modules/SplitTracker";
 import { BoostInterceptor } from "./modules/BoostInterceptor";
 import { PlayerPosition } from "./modules/PlayerPosition";
 import { Timer } from "./modules/Timer";
-import { Location } from "./modules/Location"
-import { ParkourCommand } from "./commands/ParkourCommand"
+import { Location } from "./modules/Location";
+import { ParkourCommand } from "./commands/ParkourCommand";
+import { ScoreboardCommand } from "./commands/ScoreboardCommand";
 
 /**
  * Proxy class
@@ -23,6 +24,7 @@ export class Proxy {
   private proxy: InstantConnectProxy;
   private interceptors: PacketInterceptor[] = [];
   private splitTracker: SplitTracker = new SplitTracker();
+  private splitScoreboard: SplitScoreboard = new SplitScoreboard();
 
   constructor() {
     this.proxy = new InstantConnectProxy({
@@ -46,7 +48,7 @@ export class Proxy {
     });
 
     this.registerInterceptors();
-    this.registerCommands()
+    this.registerCommands();
 
     this.proxy.on(
       "incoming",
@@ -61,7 +63,9 @@ export class Proxy {
           try {
             packet = interceptor.in(packet);
           } catch (error) {
-            Logger.error(`Error in (incoming) interceptor ${interceptor.name}: ${error}`);
+            Logger.error(
+              `Error in (incoming) interceptor ${interceptor.name}: ${error}`,
+            );
           }
         }
 
@@ -85,7 +89,9 @@ export class Proxy {
           try {
             packet = interceptor.out(packet);
           } catch (error) {
-            Logger.error(`Error in (outgoing) interceptor ${interceptor.name}: ${error}`);
+            Logger.error(
+              `Error in (outgoing) interceptor ${interceptor.name}: ${error}`,
+            );
           }
         }
 
@@ -110,7 +116,7 @@ export class Proxy {
         new Location(),
         new World(),
         new RoomID(this.splitTracker),
-        new SplitScoreboard(),
+        this.splitScoreboard,
         positionTracker,
         timer,
         new BoostInterceptor(this.splitTracker, positionTracker, timer),
@@ -123,8 +129,8 @@ export class Proxy {
    * @private
    */
   private registerCommands() {
-    this.interceptors.push(...[
-      new ParkourCommand()
-    ])
+    this.interceptors.push(
+      ...[new ParkourCommand(), new ScoreboardCommand(this.splitScoreboard)],
+    );
   }
 }
