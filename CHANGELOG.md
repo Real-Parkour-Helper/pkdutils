@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.10.0...v1.11.0) (2025-04-11)
+
+
+### Features
+
+* logger now logs to a log file as well as the terminal ([3fb6241](https://github.com/Real-Parkour-Helper/pkdutils/commit/3fb62416349e9b4a9caeb9ca0b18df40c15833d6))
+
 # [1.10.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.9.4...v1.10.0) (2025-04-10)
 
 
