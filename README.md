@@ -15,7 +15,7 @@ A Minecraft proxy server that enhances the Hypixel Parkour Duels experience with
 
 ## Usage
 
-- Head to [releases](https://github.com/yourusername/pkdutils/releases) and download the latest version for your operating system.
+- Head to [releases](https://github.com/Real-Parkour-Helper/pkdutils/releases) and download the latest version for your operating system.
 
   - note: Linux and macOS executables aren't really tested, so have fun!
 
