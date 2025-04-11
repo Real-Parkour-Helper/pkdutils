@@ -22,7 +22,7 @@ A Minecraft proxy server that enhances the Hypixel Parkour Duels experience with
 - Put the downloaded executable in a folder of your choice and run it. If all goes well, you should see a message saying "Proxy started! Listening on port 25565."
 - Add a server with the IP `localhost` and connect to it.
 
-  - check the program window again. On your first login it likely ask you to sign in to your Microsoft account. Follow the login instructions there and join the minecraft server again. [Why do I need to sign in?](#Why-do-I-need-to-sign-in)
+  - Check the program window again. On your first login it likely ask you to sign in to your Microsoft account. Follow the login instructions there and join the minecraft server again. [Why do I need to sign in?](#Why-do-I-need-to-sign-in)
 
 - Go get some sub 2s!
 
