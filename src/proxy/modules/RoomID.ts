@@ -106,6 +106,11 @@ export class RoomID extends PacketInterceptor {
         return;
       }
       
+      toClient.write("chat", {
+        message: JSON.stringify({ text: "" }),
+        position: 0
+      });
+      
       if (data.personal.boost_time === "") {
         toClient.write("chat", {
           message: JSON.stringify({ text: `§9It seems you haven't collected enough splits for us to determine the fastest time :(` }),
