@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.12.0...v1.13.0) (2025-04-12)
+
+
+### Features
+
+* add room number to the scoreboard ([335a845](https://github.com/Real-Parkour-Helper/pkdutils/commit/335a8459723613aa17e86887d96d926ce34dee66))
+
 # [1.12.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.11.0...v1.12.0) (2025-04-11)
 
 
