@@ -3,6 +3,7 @@ import { Logger } from "../../util/Logger";
 import { Packet } from "../packet/Packet";
 import { PacketInterceptor } from "../packet/PacketInterceptor";
 import { constructChatMessage } from "../util/packetUtils";
+import { RoomID } from "./RoomID";
 
 interface CheckpointData {
   color: string;
@@ -26,6 +27,7 @@ interface CheckpointMap {
 export type ScoreboardMode = "default" | "allplayers" | "splits";
 
 export class SplitScoreboard extends PacketInterceptor {
+  private roomTracker: RoomID;
   private mode: ScoreboardMode = "splits";
   private defaultScoreboardItems: Packet[] = [];
 
@@ -38,8 +40,9 @@ export class SplitScoreboard extends PacketInterceptor {
     aqua: "§b",
   };
 
-  constructor() {
+  constructor(roomTracker: RoomID) {
     super("SplitScoreboard", "1.0.0", true, ["respawn"]);
+    this.roomTracker = roomTracker;
   }
 
   SetMode(mode: ScoreboardMode, toClient: ServerClient): void {
@@ -233,6 +236,18 @@ export class SplitScoreboard extends PacketInterceptor {
 
       toClient.write("scoreboard_team", data);
     }
+
+    toClient.write("scoreboard_team", {
+      team: "team_1",
+      mode: 2,
+      name: "team_1",
+      prefix: `Room: ${this.roomTracker.GetCurrentRoomNumber + 1}`,
+      suffix: "",
+      friendlyFire: 3,
+      nameTagVisibility: "always",
+      color: 15,
+      players: undefined,
+    });
   }
 
   incomingPacket(packet: Packet): Packet {

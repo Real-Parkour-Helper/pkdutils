@@ -24,7 +24,10 @@ export class Proxy {
   private proxy: InstantConnectProxy;
   private interceptors: PacketInterceptor[] = [];
   private splitTracker: SplitTracker = new SplitTracker();
-  private splitScoreboard: SplitScoreboard = new SplitScoreboard();
+  private roomTracker: RoomID = new RoomID(this.splitTracker);
+  private splitScoreboard: SplitScoreboard = new SplitScoreboard(
+    this.roomTracker,
+  );
 
   constructor() {
     this.proxy = new InstantConnectProxy({
@@ -115,7 +118,7 @@ export class Proxy {
       ...[
         new Location(),
         new World(),
-        new RoomID(this.splitTracker),
+        this.roomTracker,
         this.splitScoreboard,
         positionTracker,
         timer,
