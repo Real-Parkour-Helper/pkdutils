@@ -3,10 +3,13 @@ import { Packet } from "../packet/Packet"
 import { World } from "./World"
 import { Logger } from "../../util/Logger"
 import { constructChatMessage } from "../util/packetUtils"
-import { BlockData, checkpointCount, RoomName, uniqueBlocks } from "../data/roomData"
+import { BlockData, checkpointCount, RoomName } from "../data/roomData"
 import { Vec3 } from "vec3"
 import { SplitTracker } from "./SplitTracker"
 import { ServerClient } from "minecraft-protocol"
+import { generateUniqueBlocks } from "../data/uniqueBlocks"
+
+const uniqueBlocks = generateUniqueBlocks()
 
 export class RoomID extends PacketInterceptor {
   private currentCheckpoint = 0
@@ -37,10 +40,15 @@ export class RoomID extends PacketInterceptor {
    * @param block
    * @private
    */
-  private verifyBlock(from: Vec3, block: BlockData): boolean {
+  private verifyBlock(from: Vec3, block: BlockData): { found: boolean, match: boolean } {
     const blockPos = new Vec3(block.x, block.y, block.z).add(from)
     const blockAtPos = World.getBlock(blockPos.x, blockPos.y, blockPos.z)
-    return (blockAtPos != null && blockAtPos.name === block.block_name)
+
+    if (blockAtPos === null) {
+      return { found: false, match: false }
+    }
+
+    return { found: true, match: blockAtPos.name === block.block_name }
   }
 
   /**
@@ -52,10 +60,14 @@ export class RoomID extends PacketInterceptor {
     const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
 
     for (const [room, blocks] of Object.entries(uniqueBlocks)) {
-      const allBlocksMatch = blocks.every(blockData => this.verifyBlock(startPos, blockData))
+      for (const block of blocks) {
+        const check = this.verifyBlock(startPos, block)
 
-      if (allBlocksMatch) { // we found our room
-        return { room: room as RoomName, startPos: startPos }
+        if (check.found && check.match) {
+          return { room: room as RoomName, startPos: startPos }
+        } else if (check.found && !check.match) {
+          break // we only need to check one block
+        }
       }
     }
 
