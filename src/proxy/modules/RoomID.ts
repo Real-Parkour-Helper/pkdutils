@@ -151,18 +151,17 @@ export class RoomID extends PacketInterceptor {
         for (const [yStr, block] of Object.entries(yMap)) {
           const y = parseInt(yStr, 10) + columnPos.y
 
-          const blockDef = registry.blocksByName[block]
+          const [blockName, blockData] = block.split(":")
+
+          const blockDef = registry.blocksByName[blockName]
           if (!blockDef) {
-            Logger.error(`Block ${block} not found in registry`)
+            Logger.error(`Block ${blockName} not found in registry`)
             continue
           }
 
-          // Use the default metadata (first state) if available
-          const blockData = blockDef.minState ?? 0
           const blockID = blockDef.id
-
           chunk.setBlockType(new Vec3(localX, y, localZ), blockID)
-          chunk.setBlockData(new Vec3(localX, y, localZ), blockData)
+          chunk.setBlockData(new Vec3(localX, y, localZ), blockData ? parseInt(blockData, 10) : 0)
         }
       }
 
