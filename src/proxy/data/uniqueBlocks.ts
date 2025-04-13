@@ -9,7 +9,7 @@ export function generateUniqueBlocks():  Record<RoomName, BlockData[]> {
       const [x, z] = coord.split(",")
 
       Object.entries(blocks).forEach(([y, block]) => {
-        const key = `${x}/${y}/${z}->${block}`
+        const key = `${x}/${y}/${z}->${block.split(":")[0]}`
 
         if (!blockAtPos.has(key)) {
           blockAtPos.set(key, [])
