@@ -22,7 +22,7 @@ export class Config {
   }
 
   private loadConfig(): void {
-    Logger.info(`Loading config from ${Config.configPath}`);
+    Logger.debug(`Loading config from ${Config.configPath}`);
 
     try {
       const dir = path.dirname(Config.configPath);
@@ -53,7 +53,7 @@ export class Config {
       Logger.error("Error saving config:", error);
     }
 
-    Logger.info(`Config saved to ${Config.configPath}`);
+    Logger.debug(`Config saved to ${Config.configPath}`);
   }
 
   public get<T>(key: string, defaultValue?: T): T {
