@@ -1,6 +1,7 @@
 import { PacketInterceptor, setLocationGetter } from "../packet/PacketInterceptor"
 import { Packet } from "../packet/Packet"
 import { constructChatMessage } from "../util/packetUtils"
+import { Logger } from "../../util/Logger"
 
 /**
  * This is the response you get from hypixel
@@ -19,27 +20,43 @@ export interface LocationData {
 export class Location extends PacketInterceptor {
   private static _locationData: LocationData | null = null
 
+  private sentLocraw = false
   private lastRespawn = 0
 
   constructor() {
     super("Location", "1.0.0", false)
   }
 
+  private isJSON(str: string): boolean {
+    const jsonObjectRegex = /^\s*\{[\s\S]*\}\s*$/
+    return jsonObjectRegex.test(str)
+  }
+
+
   incomingPacket(packet: Packet): Packet {
     if (packet.meta.name === "respawn" && Date.now() - this.lastRespawn > 500) { // don't spam hypixel with /locraw
       this.lastRespawn = Date.now()
       packet.toServer.write("chat", { message: "/locraw" })
       Location._locationData = null
+      this.sentLocraw = true
     } else if (packet.meta.name === "chat") {
       const text = constructChatMessage(packet.data.message)
-      if (/.+"server":.+".+".+/.exec(text) && /.+"gametype":.+".+".+/.exec(text)) {
-        const parsed = JSON.parse(text)
-        Location._locationData = {
-          server: parsed.server,
-          mode: parsed.mode,
-          gametype: parsed.gametype,
-          map: parsed.map,
-          lobbyname: parsed.lobbyname
+      if (this.isJSON(text) && /.+"server":.+".+".+/.exec(text) && /.+"gametype":.+".+".+/.exec(text)) {
+        try {
+          const parsed = JSON.parse(text)
+          Location._locationData = {
+            server: parsed.server,
+            mode: parsed.mode,
+            gametype: parsed.gametype,
+            map: parsed.map,
+            lobbyname: parsed.lobbyname
+          }
+          if (this.sentLocraw) {
+            this.sentLocraw = false // cancel ONE locraw message so lunar and other clients don't break
+            packet.cancelled = true // so it doesn't show up in chat
+          }
+        } catch (e) {
+          Logger.error("Failed to parse location data: ", e)
         }
       }
     }
