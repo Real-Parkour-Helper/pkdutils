@@ -182,34 +182,13 @@ export class RoomID extends PacketInterceptor {
   private detectAndFixChunks(toClient: ServerClient) {
     const missingChunks = this.detectMissingChunks()
     if (missingChunks.length > 0) {
-      console.log(`Missing chunks: ${missingChunks}`)
       const packets = this.fixChunks(missingChunks)
       for (const chunkPacket of packets) {
-        console.log(`Sending chunk packet for ${chunkPacket.x},${chunkPacket.z} in 30 seconds`)
-
-        const chunk = new Chunk()
-        chunk.load(chunkPacket.chunkData, chunkPacket.bitMap ?? 0xFFFF)
-        const blocksInChunk: string[] = []
-        for (let x = 0; x < 16; x++) {
-          for (let z = 0; z < 16; z++) {
-            for (let y = 0; y < 256; y++) {
-              const block = chunk.getBlock(new Vec3(x, y, z))
-              if (block && !blocksInChunk.includes(block.name)) {
-                blocksInChunk.push(block.name)
-              }
-            }
-          }
-        }
-
-        console.log(`Blocks in chunk: ${blocksInChunk}`)
-
-        setTimeout(() => {
-          toClient.write("map_chunk", chunkPacket)
-          toClient.write("chat", {
-            message: JSON.stringify({ text: `§9Missing chunk fixed at ${chunkPacket.x},${chunkPacket.z}` }),
-            position: 0
-          })
-        }, 5000)
+        toClient.write("map_chunk", chunkPacket)
+        toClient.write("chat", {
+          message: JSON.stringify({ text: `§9§lFixed a missing chunk!` }),
+          position: 0
+        })
       }
     }
   }
