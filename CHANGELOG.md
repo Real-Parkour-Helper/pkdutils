@@ -1,3 +1,11 @@
+## [1.13.2](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.13.1...v1.13.2) (2025-04-15)
+
+
+### Bug Fixes
+
+* boost misidentification ([3d2a6d3](https://github.com/Real-Parkour-Helper/pkdutils/commit/3d2a6d39e8a356389e8f03edcffc18800e8ff186))
+* remove `/parkour` command because it interferes with hypixel's command ([0505900](https://github.com/Real-Parkour-Helper/pkdutils/commit/05059006d8d862c27985cb8956c0936a510ed05f))
+
 ## [1.13.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.13.0...v1.13.1) (2025-04-15)
 
 
