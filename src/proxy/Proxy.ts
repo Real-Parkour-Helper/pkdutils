@@ -14,6 +14,7 @@ import { Timer } from "./modules/Timer";
 import { Location } from "./modules/Location";
 import { ParkourCommand } from "./commands/ParkourCommand";
 import { ScoreboardCommand } from "./commands/ScoreboardCommand";
+import { ToggleAutosaveCommand } from "./commands/ToggleAutosaveCommand";
 
 /**
  * Proxy class
@@ -23,11 +24,6 @@ import { ScoreboardCommand } from "./commands/ScoreboardCommand";
 export class Proxy {
   private proxy: InstantConnectProxy;
   private interceptors: PacketInterceptor[] = [];
-  private splitTracker: SplitTracker = new SplitTracker();
-  private roomTracker: RoomID = new RoomID(this.splitTracker);
-  private splitScoreboard: SplitScoreboard = new SplitScoreboard(
-    this.roomTracker,
-  );
 
   constructor() {
     this.proxy = new InstantConnectProxy({
@@ -113,16 +109,18 @@ export class Proxy {
    */
   private registerInterceptors() {
     const positionTracker = new PlayerPosition();
+    const splitTracker = new SplitTracker();
+    const roomTracker = new RoomID(splitTracker);
     const timer = new Timer();
     this.interceptors.push(
       ...[
         new Location(),
         new World(),
-        this.roomTracker,
-        this.splitScoreboard,
+        roomTracker,
+        new SplitScoreboard(roomTracker),
         positionTracker,
         timer,
-        new BoostInterceptor(this.splitTracker, positionTracker, timer),
+        new BoostInterceptor(splitTracker, positionTracker, timer),
       ],
     );
   }
@@ -133,7 +131,11 @@ export class Proxy {
    */
   private registerCommands() {
     this.interceptors.push(
-      ...[new ParkourCommand(), new ScoreboardCommand(this.splitScoreboard)],
+      ...[
+        new ParkourCommand(),
+        new ScoreboardCommand(),
+        new ToggleAutosaveCommand(),
+      ],
     );
   }
 }

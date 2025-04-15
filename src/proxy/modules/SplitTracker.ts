@@ -8,11 +8,13 @@ import { msToSplit, splitToMs } from "../util/splitUtils";
 import { Vec3 } from "vec3";
 import { defaultSplits, SplitsData } from "../data/defaultSplits";
 import { titleCase } from "../util/generalUtils";
+import { Config } from "../config/Config";
 
 /**
  * SplitTracker class for parsing and storing player's splits
  */
 export class SplitTracker {
+  private config: Config = Config.getInstance();
   private roomEnterSplit: number = 0;
   private hasBoosted: boolean = false;
   private boostPosition: PlayerPositionData | null = null;
@@ -41,6 +43,7 @@ export class SplitTracker {
     this.hasBoosted = false;
     this.boostPosition = null;
     this.boostTime = 0;
+    this.loadSplits();
   }
 
   /**
@@ -54,7 +57,7 @@ export class SplitTracker {
         Logger.debug(`Loaded splits data from ${this.splitsFilePath}`);
       } else {
         this._splitsData = defaultSplits;
-        this.saveSplits();
+        this.saveSplits(true);
         Logger.debug(`Created new splits file at ${this.splitsFilePath}`);
       }
     } catch (error) {
@@ -66,7 +69,12 @@ export class SplitTracker {
   /**
    * Save splits data to file
    */
-  private saveSplits(): void {
+  private saveSplits(init: boolean): void {
+    if (!this.config.get("autosave", true) && !init) {
+      Logger.info("Not saving new splits because 'autosave' is set to false");
+      return;
+    }
+
     try {
       fs.writeFileSync(
         this.splitsFilePath,
@@ -118,6 +126,9 @@ export class SplitTracker {
         this.boostPosition,
         roomStartPos,
       );
+      Logger.info(
+        `Finished room ${roomName} (${boostStratName}) in ${roomSplit}, boosted at ${this.boostTime}`,
+      );
 
       const diff = this.boostStratPBDiff(roomName, boostStratName, roomSplit);
 
@@ -137,6 +148,7 @@ export class SplitTracker {
         position: 0,
       });
     } else {
+      Logger.info(`Finished room ${roomName} boostless in ${roomSplit}`);
       const diff = this.isBoostlessPersonalBest(roomName, roomSplit);
 
       const isFirstPB = 600000 + diff === roomSplit;
@@ -149,7 +161,6 @@ export class SplitTracker {
 
       this.updateBestSplits(roomName, roomSplit);
 
-      Logger.debug(`sending a message for room ${roomName}`);
       const text = `§9Finished §a${titleCase(roomName)} §6without boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
       toClient.write("chat", {
         message: `{ "text": "${text}" }`,
@@ -168,7 +179,7 @@ export class SplitTracker {
   private updateBestSplits(roomName: string, time: number): void {
     if (!this.hasBoosted && time < this._splitsData[roomName].boostless_time) {
       this._splitsData[roomName].boostless_time = time;
-      this.saveSplits();
+      this.saveSplits(false);
     }
   }
 
@@ -195,7 +206,7 @@ export class SplitTracker {
     if (time < strat.time) {
       strat.time = time;
       strat.boost_time = this.boostTime - this.roomEnterSplit;
-      this.saveSplits();
+      this.saveSplits(false);
     }
   }
 
