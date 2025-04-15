@@ -1,11 +1,12 @@
+import { Config } from "../config/Config";
 import { ScoreboardMode, SplitScoreboard } from "../modules/SplitScoreboard";
 import { Command } from "../packet/Command";
 import { Packet } from "../packet/Packet";
 
 export class ScoreboardCommand extends Command {
-  private scoreboard: SplitScoreboard;
+  private config: Config = Config.getInstance();
 
-  constructor(scoreboard: SplitScoreboard) {
+  constructor() {
     super(
       "ScoreboardCommand",
       "1.0.0",
@@ -17,10 +18,9 @@ export class ScoreboardCommand extends Command {
         },
       ],
     );
-    this.scoreboard = scoreboard;
   }
 
   protected handle(args: string[], packet: Packet) {
-    this.scoreboard.SetMode(args[0] as ScoreboardMode, packet.toClient);
+    this.config.set("scoreboard", args[0]);
   }
 }

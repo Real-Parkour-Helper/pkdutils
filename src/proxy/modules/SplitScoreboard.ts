@@ -4,6 +4,7 @@ import { Packet } from "../packet/Packet";
 import { PacketInterceptor } from "../packet/PacketInterceptor";
 import { constructChatMessage } from "../util/packetUtils";
 import { RoomID } from "./RoomID";
+import { Config } from "../config/Config";
 
 interface CheckpointData {
   color: string;
@@ -28,7 +29,7 @@ export type ScoreboardMode = "default" | "allplayers" | "splits";
 
 export class SplitScoreboard extends PacketInterceptor {
   private roomTracker: RoomID;
-  private mode: ScoreboardMode = "splits";
+  private config: Config = Config.getInstance();
   private defaultScoreboardItems: Packet[] = [];
 
   private gameStarted: boolean = false;
@@ -43,14 +44,6 @@ export class SplitScoreboard extends PacketInterceptor {
   constructor(roomTracker: RoomID) {
     super("SplitScoreboard", "1.0.0", true, ["respawn"]);
     this.roomTracker = roomTracker;
-  }
-
-  SetMode(mode: ScoreboardMode, toClient: ServerClient): void {
-    Logger.info("Changing scoreboard mode to", mode);
-
-    this.mode = mode;
-    const scoreboard = this.updateScoreboard(this.checkpoints);
-    this.sendScoreboard(scoreboard, toClient);
   }
 
   private parseCheckpointMessage(
@@ -148,7 +141,10 @@ export class SplitScoreboard extends PacketInterceptor {
         const timeDiff = playerData.time - firstPlayerTime;
 
         let displayValue = this.formatTimeDiff(timeDiff);
-        if (this.mode == "allplayers") {
+        if (
+          this.config.get("scoreboard", "splits" as ScoreboardMode) ==
+          "allplayers"
+        ) {
           displayValue = `#${checkpoint}`;
         }
         if (playerData.completed) {
@@ -172,7 +168,9 @@ export class SplitScoreboard extends PacketInterceptor {
     scoreboard: { color: string; player: string; value: string }[],
     toClient: ServerClient,
   ): void {
-    if (this.mode == "default") {
+    if (
+      this.config.get("scoreboard", "splits" as ScoreboardMode) == "default"
+    ) {
       for (let p of this.defaultScoreboardItems) {
         p.toClient.write(p.meta.name, p.data);
       }
@@ -320,7 +318,7 @@ export class SplitScoreboard extends PacketInterceptor {
       return packet;
     } else if (
       packet.meta.name === "scoreboard_team" &&
-      this.mode != "default"
+      this.config.get("scoreboard", "splits" as ScoreboardMode) != "default"
     ) {
       if (
         this.gameStarted &&
