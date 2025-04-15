@@ -46,7 +46,7 @@ export class Config {
     try {
       fs.writeFileSync(
         Config.configPath,
-        JSON.stringify(this.configData),
+        JSON.stringify(this.configData, null, 2),
         "utf8",
       );
     } catch (error) {
