@@ -14,6 +14,7 @@ import { Timer } from "./modules/Timer";
 import { Location } from "./modules/Location";
 import { ParkourCommand } from "./commands/ParkourCommand";
 import { ScoreboardCommand } from "./commands/ScoreboardCommand";
+import { ToggleAutosaveCommand } from "./commands/ToggleAutosaveCommand";
 
 /**
  * Proxy class
@@ -129,6 +130,12 @@ export class Proxy {
    * @private
    */
   private registerCommands() {
-    this.interceptors.push(...[new ParkourCommand(), new ScoreboardCommand()]);
+    this.interceptors.push(
+      ...[
+        new ParkourCommand(),
+        new ScoreboardCommand(),
+        new ToggleAutosaveCommand(),
+      ],
+    );
   }
 }

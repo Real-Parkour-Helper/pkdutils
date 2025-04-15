@@ -1,5 +1,4 @@
 import { Config } from "../config/Config";
-import { ScoreboardMode, SplitScoreboard } from "../modules/SplitScoreboard";
 import { Command } from "../packet/Command";
 import { Packet } from "../packet/Packet";
 
