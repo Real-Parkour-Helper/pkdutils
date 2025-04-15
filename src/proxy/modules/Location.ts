@@ -20,6 +20,7 @@ export interface LocationData {
 export class Location extends PacketInterceptor {
   private static _locationData: LocationData | null = null
 
+  private sentLocraw = false
   private lastRespawn = 0
 
   constructor() {
@@ -37,6 +38,7 @@ export class Location extends PacketInterceptor {
       this.lastRespawn = Date.now()
       packet.toServer.write("chat", { message: "/locraw" })
       Location._locationData = null
+      this.sentLocraw = true
     } else if (packet.meta.name === "chat") {
       const text = constructChatMessage(packet.data.message)
       if (this.isJSON(text) && /.+"server":.+".+".+/.exec(text) && /.+"gametype":.+".+".+/.exec(text)) {
@@ -48,6 +50,10 @@ export class Location extends PacketInterceptor {
             gametype: parsed.gametype,
             map: parsed.map,
             lobbyname: parsed.lobbyname
+          }
+          if (this.sentLocraw) {
+            this.sentLocraw = false // cancel ONE locraw message so lunar and other clients don't break
+            packet.cancelled = true // so it doesn't show up in chat
           }
         } catch (e) {
           Logger.error("Failed to parse location data: ", e)
