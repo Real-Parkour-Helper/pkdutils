@@ -1,3 +1,17 @@
+# [1.14.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.13.2...v1.14.0) (2025-04-15)
+
+
+### Bug Fixes
+
+* save prettified config ([3ba6fdd](https://github.com/Real-Parkour-Helper/pkdutils/commit/3ba6fddafc2bf030aad0d26a00c8885db942d8e4))
+
+
+### Features
+
+* add a command to toggle autosave ([be7a143](https://github.com/Real-Parkour-Helper/pkdutils/commit/be7a1434beadc84fb49740971479949b3e732379))
+* add a Config class ([35330f1](https://github.com/Real-Parkour-Helper/pkdutils/commit/35330f12acede1808c16f1deb72cde2ad948c14b))
+* add option to not autosave splits ([b41a598](https://github.com/Real-Parkour-Helper/pkdutils/commit/b41a59806716ece7191382713c39748d30b88157))
+
 ## [1.13.2](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.13.1...v1.13.2) (2025-04-15)
 
 
