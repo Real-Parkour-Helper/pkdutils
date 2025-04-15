@@ -1,3 +1,11 @@
+## [1.13.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.13.0...v1.13.1) (2025-04-15)
+
+
+### Bug Fixes
+
+* locraw message no longer appears in client-side chat ([20ecc45](https://github.com/Real-Parkour-Helper/pkdutils/commit/20ecc45aff1b674954abf769ab1f5b75d18e1f5d))
+* stricter JSON checking and parse wrapped in try/catch ([754be1a](https://github.com/Real-Parkour-Helper/pkdutils/commit/754be1ab25973d042b37dc50033198e6245a23b2))
+
 # [1.13.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.12.0...v1.13.0) (2025-04-12)
 
 
