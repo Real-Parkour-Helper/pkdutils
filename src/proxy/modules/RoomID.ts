@@ -163,6 +163,7 @@ export class RoomID extends PacketInterceptor {
       this.currentRoomName = null
       this.rooms = []
       this.splitTracker.resetTracker();
+      this.currentRoomStartPosition = this.startPosition;
     }
 
     if (packet.meta.name === "chat") {
