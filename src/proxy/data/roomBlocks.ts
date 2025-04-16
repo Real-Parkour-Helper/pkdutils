@@ -27095,9 +27095,6 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
   "quartz temple": {
     "name": "quartz temple",
     "columns": {
-      "-14,14": {
-        "4": "vine:8"
-      },
       "-13,12": {
         "3": "stone",
         "4": "stone"
@@ -28344,9 +28341,6 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "3": "vine:4",
         "4": "vine:4"
       },
-      "14,14": {
-        "3": "vine:2"
-      }
     }
   },
   "sandpit": {
