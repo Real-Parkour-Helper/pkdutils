@@ -30,10 +30,11 @@ To stop the proxy, close the program window. You will be disconnected from hypix
 
 ### Commands
 
-| Command              | Description                                              |
-| -------------------- | -------------------------------------------------------- |
-| `/parkour` or `/pkd` | Join Parkour Duels directly                              |
-| `/scoreboard <mode>` | Change the scoreboard mode (default, allplayers, splits) |
+| Command              | Description                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `/parkour` or `/pkd` | Join Parkour Duels directly                                    |
+| `/scoreboard <mode>` | Change the scoreboard mode (default, allplayers, splits)       |
+| `/toggleautosave`    | Toggle whether your new personal bests are automatically saved |
 
 ### Split Analytics
 
