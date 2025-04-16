@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.17.0...v1.17.1) (2025-04-16)
+
+
+### Bug Fixes
+
+* remove non-existing vines from quartz temple data ([a37006d](https://github.com/Real-Parkour-Helper/pkdutils/commit/a37006d6a95062a76a9f191a371da74fa101205f))
+
 # [1.17.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.16.0...v1.17.0) (2025-04-16)
 
 
