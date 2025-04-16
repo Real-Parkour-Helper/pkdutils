@@ -1,3 +1,18 @@
+# [1.17.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.16.0...v1.17.0) (2025-04-16)
+
+
+### Bug Fixes
+
+* add metadata to room blocks and handle when identifying room and generating unique block list ([27ae4e3](https://github.com/Real-Parkour-Helper/pkdutils/commit/27ae4e3e4266d45bbc718282e3fd5c3073930ad6))
+* don't log all blocks in the chunk, don't delay before sending chunk packet ([851c3f1](https://github.com/Real-Parkour-Helper/pkdutils/commit/851c3f1832d16da3f3d32fdfc0bdfaacf1ab2c4c))
+* use every single unique block inside a room instead of a select few to identify the room ([1e4df11](https://github.com/Real-Parkour-Helper/pkdutils/commit/1e4df117a5a0cc6a003bbc9ec8ffbecb1cfc3dd5))
+* use metadata with reconstructing chunk packets ([f8aa940](https://github.com/Real-Parkour-Helper/pkdutils/commit/f8aa940193d43d6498fc29611070f12165d358d6))
+
+
+### Features
+
+* identify and fix missing chunks ([7f56ceb](https://github.com/Real-Parkour-Helper/pkdutils/commit/7f56cebe594c2e6fb4b79b4508656072f889e29a))
+
 # [1.16.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.15.1...v1.16.0) (2025-04-16)
 
 
