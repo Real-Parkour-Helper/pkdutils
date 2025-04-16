@@ -3,10 +3,16 @@ import { Packet } from "../packet/Packet"
 import { World } from "./World"
 import { Logger } from "../../util/Logger"
 import { constructChatMessage } from "../util/packetUtils"
-import { BlockData, checkpointCount, RoomName, uniqueBlocks } from "../data/roomData"
+import { BlockData, checkpointCount, RoomName } from "../data/roomData"
 import { Vec3 } from "vec3"
 import { SplitTracker } from "./SplitTracker"
 import { ServerClient } from "minecraft-protocol"
+import { generateUniqueBlocks } from "../data/uniqueBlocks"
+import { roomBlocks } from "../data/roomBlocks"
+
+const registry = require("prismarine-registry")("1.8.9")
+const Chunk = require("prismarine-chunk")(registry)
+const uniqueBlocks = generateUniqueBlocks()
 
 export class RoomID extends PacketInterceptor {
   private currentCheckpoint = 0
@@ -20,7 +26,7 @@ export class RoomID extends PacketInterceptor {
   private rooms: RoomName[] = []
   private splitTracker: SplitTracker
   private calcUrl = "https://wired-cod-kindly.ngrok-free.app/api/pkdutils/calc"
-  
+
   get GetCurrentRoomNumber(): number {
     return this.currentRoomNumber;
   }
@@ -37,10 +43,15 @@ export class RoomID extends PacketInterceptor {
    * @param block
    * @private
    */
-  private verifyBlock(from: Vec3, block: BlockData): boolean {
+  private verifyBlock(from: Vec3, block: BlockData): { found: boolean, match: boolean } {
     const blockPos = new Vec3(block.x, block.y, block.z).add(from)
     const blockAtPos = World.getBlock(blockPos.x, blockPos.y, blockPos.z)
-    return (blockAtPos != null && blockAtPos.name === block.block_name)
+
+    if (blockAtPos === null) {
+      return { found: false, match: false }
+    }
+
+    return { found: true, match: blockAtPos.name === block.block_name }
   }
 
   /**
@@ -52,15 +63,136 @@ export class RoomID extends PacketInterceptor {
     const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
 
     for (const [room, blocks] of Object.entries(uniqueBlocks)) {
-      const allBlocksMatch = blocks.every(blockData => this.verifyBlock(startPos, blockData))
+      for (const block of blocks) {
+        const check = this.verifyBlock(startPos, block)
 
-      if (allBlocksMatch) { // we found our room
-        return { room: room as RoomName, startPos: startPos }
+        if (check.found && check.match) {
+          return { room: room as RoomName, startPos: startPos }
+        } else if (check.found && !check.match) {
+          break // we only need to check one block
+        }
       }
     }
 
     return null // this should never happen but typescript must be pleased
   }
+
+  /**
+   * Detects missing chunks in the current room
+   * @private
+   * @returns {string[]} - An array of missing chunk keys
+   */
+  private detectMissingChunks(): string[] {
+    if (this.currentRoomName == null) {
+      Logger.error("Unable to detect missing chunks as this.currentRoomName is null!")
+      return []
+    }
+
+    const zAddend = 57 * this.currentRoomNumber
+    const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
+
+    const checkedChunks: string[] = [] // includes both missing and okay chunks, just to make it faster
+    const missingChunkKeys: string[] = []
+
+    for (let x = -15; x <= 15; x++) {
+      for (let z = 0; z <= 50; z++) {
+        const pos = new Vec3(x, 0, z).add(startPos)
+        const [chunkX, chunkZ] = [pos.x >> 4, pos.z >> 4]
+        const chunkKey = `${chunkX},${chunkZ}`
+        if (checkedChunks.includes(chunkKey)) {
+          continue
+        }
+
+        checkedChunks.push(chunkKey)
+
+        const blockAtPos = World.getBlock(pos.x, pos.y, pos.z)
+        if (blockAtPos === null) {
+          missingChunkKeys.push(chunkKey)
+        }
+      }
+    }
+
+    return missingChunkKeys
+  }
+
+  /**
+   * Recreates the chunk packet data for the given missing chunks and returns is
+   * @param missingChunks
+   * @private
+   */
+  private fixChunks(missingChunks: string[]) : { x: number, z: number, groundUp: boolean, bitMap: number, chunkData: Buffer }[] {
+    if (this.currentRoomName == null) {
+      Logger.error("Unable to detect missing chunks as this.currentRoomName is null!")
+      return []
+    }
+
+    const zAddend = 57 * this.currentRoomNumber
+    const startPos = new Vec3(0, 0, zAddend + 1).add(this.startPosition)
+
+    const packets = []
+
+    for (const chunkKey of missingChunks) {
+      const [chunkX, chunkZ] = chunkKey.split(",").map(Number)
+
+      const chunk = new Chunk()
+
+      const columns = roomBlocks[this.currentRoomName].columns
+      for (const [columnKey, yMap] of Object.entries(columns)) {
+        const [x, z] = columnKey.split(",").map(Number)
+        const columnPos = new Vec3(x, 0, z).add(startPos)
+
+        if (columnPos.x >> 4 !== chunkX || columnPos.z >> 4 !== chunkZ) {
+          continue // this column doesn't belong in this chunk
+        }
+
+        const localX = columnPos.x & 0xF
+        const localZ = columnPos.z & 0xF
+
+        for (const [yStr, block] of Object.entries(yMap)) {
+          const y = parseInt(yStr, 10) + columnPos.y
+
+          const [blockName, blockData] = block.split(":")
+
+          const blockDef = registry.blocksByName[blockName]
+          if (!blockDef) {
+            Logger.error(`Block ${blockName} not found in registry`)
+            continue
+          }
+
+          const blockID = blockDef.id
+          chunk.setBlockType(new Vec3(localX, y, localZ), blockID)
+          chunk.setBlockData(new Vec3(localX, y, localZ), blockData ? parseInt(blockData, 10) : 0)
+        }
+      }
+
+      const dump = chunk.dump()
+      const data = {
+        x: chunkX,
+        z: chunkZ,
+        groundUp: true,
+        bitMap: 0xFFFF,
+        chunkData: dump
+      }
+      packets.push(data)
+    }
+
+    return packets
+  }
+
+  private detectAndFixChunks(toClient: ServerClient) {
+    const missingChunks = this.detectMissingChunks()
+    if (missingChunks.length > 0) {
+      const packets = this.fixChunks(missingChunks)
+      for (const chunkPacket of packets) {
+        toClient.write("map_chunk", chunkPacket)
+        toClient.write("chat", {
+          message: JSON.stringify({ text: `§9§lFixed a missing chunk!` }),
+          position: 0
+        })
+      }
+    }
+  }
+
 
   /**
    * Sends the seed to Parkour Duels Bot and returns the optimal result
@@ -109,12 +241,12 @@ export class RoomID extends PacketInterceptor {
       if (!data.personal) {
         return;
       }
-      
+
       toClient.write("chat", {
         message: JSON.stringify({ text: "" }),
         position: 0
       });
-      
+
       if (data.personal.boost_time === "") {
         toClient.write("chat", {
           message: JSON.stringify({ text: `§9It seems you haven't collected enough splits for us to determine the fastest time :(` }),
@@ -199,6 +331,8 @@ export class RoomID extends PacketInterceptor {
         if (detectedRoom) {
           this.currentRoomName = detectedRoom.room
           this.rooms.push(this.currentRoomName)
+          this.detectAndFixChunks(packet.toClient)
+
           Logger.debug(`You are in room ${this.currentRoomName} (${this.currentRoomNumber})`)
         } else {
           Logger.error("There was an error identifying which room you are in! Please report this.")
@@ -232,6 +366,7 @@ export class RoomID extends PacketInterceptor {
             this.currentRoomName = detectedRoom.room
             this.currentRoomStartPosition = detectedRoom.startPos
             this.rooms.push(this.currentRoomName)
+           this.detectAndFixChunks(packet.toClient)
             Logger.debug(`You are in room ${this.currentRoomName} (${this.currentRoomNumber})`)
           } else {
             Logger.error("There was an error identifying which room you are in! Please report this.")
