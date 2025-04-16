@@ -1,3 +1,15 @@
+# [1.15.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.14.0...v1.15.0) (2025-04-16)
+
+
+### Bug Fixes
+
+* ask for user confirmation before installing the update ([48f8c6f](https://github.com/Real-Parkour-Helper/pkdutils/commit/48f8c6f8e6479da50e7df0df20fdec339272cf38))
+
+
+### Features
+
+* add an autoupdater ([8c12b78](https://github.com/Real-Parkour-Helper/pkdutils/commit/8c12b780b567a8c327f5f578c1e1b75765243de4))
+
 # [1.14.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.13.2...v1.14.0) (2025-04-15)
 
 
