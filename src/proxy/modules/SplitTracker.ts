@@ -9,6 +9,7 @@ import { Vec3 } from "vec3";
 import { defaultSplits, SplitsData } from "../data/defaultSplits";
 import { titleCase } from "../util/generalUtils";
 import { Config } from "../config/Config";
+import { bold, blueBright, yellow, red, magenta } from "chalk";
 
 /**
  * SplitTracker class for parsing and storing player's splits
@@ -126,9 +127,6 @@ export class SplitTracker {
         this.boostPosition,
         roomStartPos,
       );
-      Logger.info(
-        `Finished room ${roomName} (${boostStratName}) in ${roomSplit}, boosted at ${this.boostTime}`,
-      );
 
       const diff = this.boostStratPBDiff(roomName, boostStratName, roomSplit);
 
@@ -140,6 +138,15 @@ export class SplitTracker {
         pbText = ` §e§lPB! §a§l(-${msToSplit(diff)}s)`;
       }
 
+      console.log(
+        `Finished room ${roomName} (${boostStratName}) in ${roomSplit}, boosted at ${this.boostTime}`,
+        isFirstPB
+          ? bold(yellow("FIRST COMPLETION"))
+          : diff < 0
+            ? bold(yellow("PERSONAL BEST"))
+            : "",
+      );
+
       this.updateBoostStratSplits(roomName, boostStratName, roomSplit);
 
       const text = `§9Finished §a${titleCase(roomName)} (${boostStratName}) §6with boost §9in §a${msToSplit(roomSplit)}s${pbText}`;
@@ -148,7 +155,6 @@ export class SplitTracker {
         position: 0,
       });
     } else {
-      Logger.info(`Finished room ${roomName} boostless in ${roomSplit}`);
       const diff = this.isBoostlessPersonalBest(roomName, roomSplit);
 
       const isFirstPB = 600000 + diff === roomSplit;
@@ -158,6 +164,15 @@ export class SplitTracker {
       } else if (diff < 0 && !isFirstPB) {
         pbText = ` §e§lPB! §a§l(-${msToSplit(diff)}s)`;
       }
+
+      console.log(
+        `Finished room ${roomName} boostless in ${roomSplit}`,
+        isFirstPB
+          ? bold(yellow("FIRST COMPLETION"))
+          : diff < 0
+            ? bold(yellow("PERSONAL BEST"))
+            : "",
+      );
 
       this.updateBestSplits(roomName, roomSplit);
 
