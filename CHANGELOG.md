@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.15.1...v1.16.0) (2025-04-16)
+
+
+### Features
+
+* output bot calc command in console ([3338f54](https://github.com/Real-Parkour-Helper/pkdutils/commit/3338f54803c71f4e82f9338c5dcebe2b628644a1))
+
 ## [1.15.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.15.0...v1.15.1) (2025-04-16)
 
 
