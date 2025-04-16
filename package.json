@@ -17,7 +17,7 @@
   "bin": "build/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc && node build/index.js",
+    "dev": "tsc && NODE_ENV=development node build/index.js",
     "compile": "tsc && node compile.js",
     "postinstall": "node patch-dependencies.js"
   },
