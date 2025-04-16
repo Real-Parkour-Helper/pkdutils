@@ -146,6 +146,30 @@ export class RoomID extends PacketInterceptor {
           position: 0
         });
       }
+      
+      let calcRooms = [];
+      for (let i = 0; i < 8; i++) {
+        calcRooms.push(`room_${i + 1}: ${this.rooms[i]}`);
+      }
+      
+      toClient.write("chat", {
+        message: JSON.stringify({ text: "" }),
+        position: 0
+      });
+      
+      // TODO: not sure if this is outputted in a single line
+      // if it's not then you can't copy it so it's USELESS
+      // toClient.write("chat", {
+      //   message: JSON.stringify({ text: "§9Calc command for the discord bot:" }),
+      //   position: 0
+      // });
+      
+      const command = `/calc ${calcRooms.join(" ")}`
+      // toClient.write("chat", {
+      //   message: JSON.stringify({ text: command }),
+      //   position: 0
+      // });
+      console.log(command);
     })
     .catch(error => {
       Logger.error(`Error calculating seed: ${error}`);
