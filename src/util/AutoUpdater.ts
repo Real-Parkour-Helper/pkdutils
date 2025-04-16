@@ -7,6 +7,7 @@ import {
 } from "fs";
 import * as path from "path";
 import * as https from "https";
+import * as readline from "readline";
 import { Logger } from "./Logger";
 import { platform } from "os";
 import { IncomingMessage } from "http";
@@ -29,15 +30,33 @@ export class AutoUpdater {
     return AutoUpdater.instance;
   }
 
-  async checkForUpdates(): Promise<void> {
+  private async confirmUpdate(version: string): Promise<boolean> {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    return new Promise<boolean>((resolve) => {
+      rl.question(
+        `New version ${version} is available. Do you want to update? (y/N): `,
+        (answer) => {
+          rl.close();
+          resolve(
+            answer.toLowerCase() === "y" || answer.toLowerCase() === "yes",
+          );
+        },
+      );
+    });
+  }
+
+  /**
+   * Checks for updates and installs them if available and user confirms.
+   */
+  async checkForUpdates(): Promise<boolean> {
     if (this.isDevMode) {
       Logger.info("Auto-updater disabled in development mode");
-      return;
+      return false;
     }
-
-    Logger.info(
-      `Auto-updater initialized with current version: ${this.currentVersion}`,
-    );
 
     try {
       Logger.debug("Checking for updates...");
@@ -45,7 +64,7 @@ export class AutoUpdater {
 
       if (!latestRelease) {
         Logger.debug("Failed to get latest release info");
-        return;
+        return false;
       }
 
       const latestVersion = latestRelease.tag_name.replace(/^v/, "");
@@ -60,18 +79,28 @@ export class AutoUpdater {
         const asset = this.getAssetForCurrentPlatform(latestRelease.assets);
 
         if (asset) {
+          const shouldInstall = await this.confirmUpdate(latestVersion);
+          if (!shouldInstall) {
+            Logger.info("Update will not be installed");
+            return false;
+          }
+
           await this.downloadAndInstallUpdate(
             asset.browser_download_url,
             asset.name,
           );
+          return true;
         } else {
           Logger.warn("No suitable update package found for this platform");
+          return false;
         }
       } else {
         Logger.debug("Application is up to date");
+        return false;
       }
     } catch (error) {
       Logger.error("Error checking for updates:", error);
+      return false;
     }
   }
 
@@ -97,37 +126,24 @@ export class AutoUpdater {
   }
 
   private async getLatestRelease(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const options = {
-        hostname: "api.github.com",
-        path: `/repos/${this.githubRepo}/releases/latest`,
-        headers: {
-          "User-Agent": "pkdutils-updater",
+    try {
+      const response = await fetch(
+        `https://api.github.com/repos/${this.githubRepo}/releases/latest`,
+        {
+          headers: {
+            "User-Agent": "pkdutils-updater",
+          },
         },
-      };
+      );
 
-      https
-        .get(options, (res) => {
-          let data = "";
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
 
-          res.on("data", (chunk) => {
-            data += chunk;
-          });
-
-          res.on("end", () => {
-            if (res.statusCode === 200) {
-              try {
-                resolve(JSON.parse(data));
-              } catch (e) {
-                reject(new Error("Invalid JSON response"));
-              }
-            } else {
-              reject(new Error(`HTTP error: ${res.statusCode}`));
-            }
-          });
-        })
-        .on("error", reject);
-    });
+      return await response.json();
+    } catch (error) {
+      throw new Error(`Failed to fetch release: ${error}`);
+    }
   }
 
   private isNewerVersion(latest: string, current: string): boolean {
