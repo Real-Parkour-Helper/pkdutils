@@ -17,7 +17,7 @@
   "bin": "build/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc && NODE_ENV=development node build/index.js",
+    "dev": "tsc && cross-env NODE_ENV=development node build/index.js",
     "compile": "tsc && node compile.js",
     "postinstall": "node patch-dependencies.js"
   },
@@ -39,6 +39,7 @@
     "prismarine-registry": "^1.11.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "typescript": "^5.8.2"
   }
 }
