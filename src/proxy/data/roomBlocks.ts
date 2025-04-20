@@ -131,7 +131,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "8": "stained_hardened_clay"
       },
       "-6,18": {
-        "4": "stone_slab"
+        "4": "stone_slab:8"
       },
       "-6,37": {
         "6": "stained_hardened_clay",
@@ -147,7 +147,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "9": "stained_hardened_clay"
       },
       "-5,16": {
-        "5": "stone_slab"
+        "5": "stone_slab:8"
       },
       "-5,17": {
         "1": "stonebrick",
@@ -174,7 +174,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "6": "stone"
       },
       "-5,20": {
-        "3": "stone_slab"
+        "3": "stone_slab:8"
       },
       "-5,37": {
         "8": "stained_hardened_clay"
@@ -324,7 +324,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "6": "stone"
       },
       "-3,20": {
-        "2": "stone_slab"
+        "2": "stone_slab:8"
       },
       "-3,32": {
         "0": "leaves",
@@ -407,7 +407,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "8": "stone"
       },
       "-2,18": {
-        "1": "stone_slab"
+        "1": "stone_slab:8"
       },
       "-2,32": {
         "-1": "leaves",
@@ -811,7 +811,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "8": "stone"
       },
       "2,18": {
-        "1": "stone_slab"
+        "1": "stone_slab:8"
       },
       "2,35": {
         "6": "stained_hardened_clay",
@@ -898,7 +898,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "6": "stone"
       },
       "3,20": {
-        "2": "stone_slab"
+        "2": "stone_slab:8"
       },
       "3,34": {
         "4": "stained_hardened_clay",
@@ -1034,7 +1034,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "0": "trapdoor:15"
       },
       "5,16": {
-        "5": "stone_slab"
+        "5": "stone_slab:8"
       },
       "5,17": {
         "1": "stonebrick",
@@ -1061,7 +1061,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "6": "stone"
       },
       "5,20": {
-        "3": "stone_slab"
+        "3": "stone_slab:8"
       },
       "5,29": {
         "10": "stained_hardened_clay",
@@ -1093,7 +1093,7 @@ export const roomBlocks: Record<RoomName, RoomBlockData> = {
         "8": "stained_hardened_clay"
       },
       "6,18": {
-        "4": "stone_slab"
+        "4": "stone_slab:8"
       },
       "6,30": {
         "11": "dirt",

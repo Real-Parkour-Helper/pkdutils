@@ -9,6 +9,7 @@ import { SplitTracker } from "./SplitTracker"
 import { ServerClient } from "minecraft-protocol"
 import { generateUniqueBlocks } from "../data/uniqueBlocks"
 import { roomBlocks } from "../data/roomBlocks"
+import { bridgeBlocks, previousBridgeBlocks } from "../data/bridgeBlocks"
 
 const registry = require("prismarine-registry")("1.8.9")
 const Chunk = require("prismarine-chunk")(registry)
@@ -137,7 +138,8 @@ export class RoomID extends PacketInterceptor {
       const chunk = new Chunk()
 
       const columns = roomBlocks[this.currentRoomName].columns
-      for (const [columnKey, yMap] of Object.entries(columns)) {
+      const allBlocks = { ...columns, ...bridgeBlocks, ...(this.currentRoomNumber !== 0 ? previousBridgeBlocks : {}) }
+      for (const [columnKey, yMap] of Object.entries(allBlocks)) {
         const [x, z] = columnKey.split(",").map(Number)
         const columnPos = new Vec3(x, 0, z).add(startPos)
 
