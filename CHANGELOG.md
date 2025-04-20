@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.17.1...v1.18.0) (2025-04-20)
+
+
+### Features
+
+* reconstruct bridges in missing chunks as well ([a9d2eaf](https://github.com/Real-Parkour-Helper/pkdutils/commit/a9d2eaf0c48368c5b523558d5deac651a228a692))
+
 ## [1.17.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.17.0...v1.17.1) (2025-04-16)
 
 
