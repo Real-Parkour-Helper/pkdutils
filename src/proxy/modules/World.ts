@@ -38,6 +38,39 @@ export class World extends PacketInterceptor {
     return chunk.getBlock(new Vec3(blockX, blockY, blockZ))
   }
 
+  /**
+   * Set a block at a given position. This will modify the chunk that contains that block.
+   * @param x
+   * @param y
+   * @param z
+   * @param type
+   * @param data
+   */
+  static setBlock(x: number, y: number, z: number, type: number, data: number) {
+    const chunkKey = `${x >> 4},${z >> 4}`
+    const chunk = World.chunks.get(chunkKey)
+    if (!chunk) return
+
+    const blockX = x & 0xF
+    const blockZ = z & 0xF
+    const blockY = y & 0xFF
+
+    chunk.setBlockType(new Vec3(blockX, blockY, blockZ), type)
+    chunk.setBlockData(new Vec3(blockX, blockY, blockZ), data)
+  }
+
+  /**
+   * Get a chunk at a given position. This will return null if the chunk does not exist.
+   * @param blockX
+   * @param blockZ
+   */
+  static getChunk(blockX: number, blockZ: number): typeof Chunk | null {
+    const chunkX = blockX >> 4
+    const chunkZ = blockZ >> 4
+    const chunkKey = `${chunkX},${chunkZ}`
+    return World.chunks.get(chunkKey)
+  }
+
   incomingPacket(packet: Packet): Packet {
     if (packet.meta.name === "respawn") {
       // On switching dimensions / worlds, clear chunks
