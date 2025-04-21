@@ -12,7 +12,7 @@ A Minecraft proxy server that enhances the Hypixel Parkour Duels experience with
   - All players with their checkpoint numbers
   - Advanced splits showing time differences between players
 - **Seed Calculation**: Calculates and recommends the best boost strategies for the seed you played
-
+- **Chunk error correction**: Automatically detects and fixes missing chunks (except in the finish room for now)
 ## Usage
 
 - Head to [releases](https://github.com/Real-Parkour-Helper/pkdutils/releases) and download the latest version for your operating system.
@@ -32,7 +32,7 @@ To stop the proxy, close the program window. You will be disconnected from hypix
 
 | Command              | Description                                                    |
 | -------------------- | -------------------------------------------------------------- |
-| `/parkour` or `/pkd` | Join Parkour Duels directly                                    |
+| `/pkd`               | Join Parkour Duels directly                                    |
 | `/scoreboard <mode>` | Change the scoreboard mode (default, allplayers, splits)       |
 | `/toggleautosave`    | Toggle whether your new personal bests are automatically saved |
 
