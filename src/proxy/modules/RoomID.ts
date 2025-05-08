@@ -93,19 +93,33 @@ export class RoomID extends PacketInterceptor {
     const zAddend = 57 * this.currentRoomNumber
     const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
 
-    const missingChunkKeys: string[] = []
+    const missingChunkKeys = new Set<string>()
+    const roomData = roomBlocks[this.currentRoomName]
 
-    for (let x = -15; x <= 15; x++) {
-      for (let z = 0; z <= 50; z++) {
-        const pos = new Vec3(x, 0, z).add(startPos)
-        const [chunkX, chunkZ] = [pos.x >> 4, pos.z >> 4]
-        const chunkKey = `${chunkX},${chunkZ}`
+    for (const [colKey, yMap] of Object.entries(roomData.columns)) {
+      const [xOffStr, zOffStr] = colKey.split(',')
+      const xOff = parseInt(xOffStr, 10)
+      const zOff = parseInt(zOffStr, 10)
 
-        if (missingChunkKeys.includes(chunkKey)) continue
+      for (const [yOffStr, blockDesc] of Object.entries(yMap)) {
+        const yOff = parseInt(yOffStr, 10)
 
-        const blockAtPos = World.getBlock(pos.x, pos.y, pos.z)
-        if (blockAtPos === null && !missingChunkKeys.includes(chunkKey)) {
-          missingChunkKeys.push(chunkKey)
+        const absX = startPos.x + xOff
+        const absY = startPos.y + yOff
+        const absZ = startPos.z + zOff + 1
+
+        const chunkX = absX >> 4
+        const chunkZ = absZ >> 4
+        const key = `${chunkX},${chunkZ}`
+
+        if (missingChunkKeys.has(key)) break
+
+        const blk = World.getBlock(absX, absY, absZ)
+        const expectedName = blockDesc.split(':')[0]
+
+        if (blk === null || blk.name !== expectedName) {
+          missingChunkKeys.add(key)
+          break
         }
       }
     }
@@ -115,15 +129,15 @@ export class RoomID extends PacketInterceptor {
     const blockAtStart = World.getBlock(startPos.x, startPos.y, startPos.z + 1)
     const otherBlockAtStart = World.getBlock(startPos.x - 3, startPos.y, startPos.z + 1)
 
-    if (blockAtStart?.name === "air" && !missingChunkKeys.includes("1,0")) {
-      missingChunkKeys.push("1,0")
+    if (blockAtStart?.name === "air" && !missingChunkKeys.has("1,0")) {
+      missingChunkKeys.add("1,0")
     }
 
-    if (otherBlockAtStart?.name === "air" && !missingChunkKeys.includes("0,0")) {
-      missingChunkKeys.push("0,0")
+    if (otherBlockAtStart?.name === "air" && !missingChunkKeys.has("0,0")) {
+      missingChunkKeys.add("0,0")
     }
 
-    return missingChunkKeys
+    return Array.from(missingChunkKeys)
   }
 
   /**
