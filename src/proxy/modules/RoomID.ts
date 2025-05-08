@@ -10,6 +10,7 @@ import { ServerClient } from "minecraft-protocol"
 import { generateUniqueBlocks } from "../data/uniqueBlocks"
 import { roomBlocks } from "../data/roomBlocks"
 import { bridgeBlocks, previousBridgeBlocks } from "../data/bridgeBlocks"
+import { PlayerPosition } from "./PlayerPosition"
 
 const registry = require("prismarine-registry")("1.8.9")
 const Chunk = require("prismarine-chunk")(registry)
@@ -26,15 +27,17 @@ export class RoomID extends PacketInterceptor {
   private currentRoomStartPosition = this.startPosition;
   private rooms: RoomName[] = []
   private splitTracker: SplitTracker
+  private playerPosition: PlayerPosition
   private calcUrl = "https://wired-cod-kindly.ngrok-free.app/api/pkdutils/calc"
 
   get GetCurrentRoomNumber(): number {
     return this.currentRoomNumber;
   }
 
-  constructor(splitTracker: SplitTracker) {
-    super("RoomID", "1.0.0", true, ["respawn"])
+  constructor(splitTracker: SplitTracker, playerPosition: PlayerPosition) {
+    super("RoomID", "1.0.0", true, ["respawn", "chat"])
     this.splitTracker = splitTracker
+    this.playerPosition = playerPosition
   }
 
   /**
@@ -193,6 +196,56 @@ export class RoomID extends PacketInterceptor {
         })
       }
     }
+  }
+
+  /**
+   * Replaces the door with air blocks to fix door glitches
+   * @param toClient
+   * @private
+   */
+  private replaceDoorWithAir(toClient: ServerClient) {
+    // const zAddend = 57 * (this.currentRoomNumber - 1)
+    // const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
+    // const doorCenterPos = new Vec3(0, 1, 54).add(startPos)
+
+    const pos = this.playerPosition.pos
+    const startPos = new Vec3(Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z))
+    const doorBlockCoordinates: Vec3[] = []
+
+    for (let x = -2; x <= 2; x++) {
+      for (let z = 1; z <= 2; z++) {
+        for (let y = 0; y < 5; y++) {
+          const pos = new Vec3(x, y, z).add(startPos)
+          doorBlockCoordinates.push(pos)
+        }
+      }
+    }
+
+    doorBlockCoordinates.forEach(pos => {
+      World.setBlock(pos.x, pos.y, pos.z, registry.blocksByName["air"].id, 0)
+    })
+
+    const doorChunks: string[] = []
+    for (const pos of doorBlockCoordinates) {
+      const chunkKey = `${pos.x >> 4},${pos.z >> 4}`
+      if (!doorChunks.includes(chunkKey)) {
+        doorChunks.push(chunkKey)
+
+        const chunk = World.getChunk(pos.x, pos.z)
+        if (chunk) {
+          const chunkData = chunk.dump()
+          toClient.write("map_chunk", {
+            x: pos.x >> 4,
+            z: pos.z >> 4,
+            groundUp: true,
+            bitMap: 0xFFFF,
+            chunkData: chunkData
+          })
+        }
+      }
+    }
+
+
   }
 
 
@@ -380,6 +433,16 @@ export class RoomID extends PacketInterceptor {
   }
 
   outgoingPacket(packet: Packet): Packet {
+    if (packet.meta.name === "chat") {
+      if (packet.data.message === "/cleardoor") {
+        this.replaceDoorWithAir(packet.toClient)
+        packet.cancelled = true
+        packet.toClient.write("chat", {
+          message: JSON.stringify({ text: "§9Cleared some blocks in front of you!" }),
+          position: 0
+        })
+      }
+    }
     return packet
   }
 }
