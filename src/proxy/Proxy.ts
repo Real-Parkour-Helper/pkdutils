@@ -16,6 +16,8 @@ import { ParkourCommand } from "./commands/ParkourCommand";
 import { ScoreboardCommand } from "./commands/ScoreboardCommand";
 import { ToggleAutosaveCommand } from "./commands/ToggleAutosaveCommand";
 
+const registry = require("prismarine-registry")("1.8.9")
+
 /**
  * Proxy class
  *
@@ -49,6 +51,9 @@ export class Proxy {
     this.registerInterceptors();
     this.registerCommands();
 
+    let id: number | undefined = undefined
+    let aliveFallingEntities: number[] = []
+
     this.proxy.on(
       "incoming",
       (
@@ -58,6 +63,29 @@ export class Proxy {
         toServer: Client,
       ) => {
         let packet = new Packet(meta, data, toClient, toServer);
+
+        if (packet.meta.name === "spawn_entity") {
+          if (packet.data.type === 70) {
+            const pos = { x: packet.data.x / 32, y: packet.data.y / 32, z: packet.data.z / 32 }
+            const objectData = packet.data.objectData.intField
+            const blockId = objectData & 0xFFF        // lower 12 bits
+            const blockData = (objectData >> 12) & 0xF // upper 4 bits
+
+            const block = registry.blocks[blockId]
+            if (block) {
+              aliveFallingEntities.push(packet.data.entityId)
+            } else {
+              Logger.debug(`Unknown block ID: ${blockId} (${objectData})`)
+            }
+          }
+        }
+
+        if (packet.meta.name === "destroy_entity") {
+          if (aliveFallingEntities.includes(packet.data.entityId)) {
+            aliveFallingEntities = aliveFallingEntities.filter(id => id !== packet.data.entityId)
+          }
+        }
+
         for (const interceptor of this.interceptors) {
           try {
             packet = interceptor.in(packet);
@@ -84,6 +112,29 @@ export class Proxy {
       ) => {
         // Forward all packets to the server
         let packet = new Packet(meta, data, toClient, toServer);
+
+        if (packet.meta.name === "chat") {
+          if (packet.data.message === "/killblocks") {
+            packet.cancelled = true
+            if (aliveFallingEntities.length > 0) {
+              toClient.write("entity_destroy", {
+                entityIds: aliveFallingEntities,
+              })
+              aliveFallingEntities = []
+
+              toClient.write("chat", {
+                message: JSON.stringify({ text: "§aKilled all falling blocks!" }),
+                position: 0,
+              })
+            } else {
+              toClient.write("chat", {
+                message: JSON.stringify({ text: "§cNo falling blocks to kill!" }),
+                position: 0,
+              })
+            }
+          }
+        }
+
         for (const interceptor of this.interceptors) {
           try {
             packet = interceptor.out(packet);
@@ -110,7 +161,7 @@ export class Proxy {
   private registerInterceptors() {
     const positionTracker = new PlayerPosition();
     const splitTracker = new SplitTracker();
-    const roomTracker = new RoomID(splitTracker);
+    const roomTracker = new RoomID(splitTracker, positionTracker);
     const timer = new Timer();
     this.interceptors.push(
       ...[
