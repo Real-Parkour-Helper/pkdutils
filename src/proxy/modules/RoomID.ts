@@ -10,6 +10,7 @@ import { ServerClient } from "minecraft-protocol"
 import { generateUniqueBlocks } from "../data/uniqueBlocks"
 import { roomBlocks } from "../data/roomBlocks"
 import { bridgeBlocks, previousBridgeBlocks } from "../data/bridgeBlocks"
+import { startRoomBlocks } from "../data/startRoom"
 
 const registry = require("prismarine-registry")("1.8.9")
 const Chunk = require("prismarine-chunk")(registry)
@@ -92,7 +93,6 @@ export class RoomID extends PacketInterceptor {
     const zAddend = 57 * this.currentRoomNumber
     const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
 
-    const checkedChunks: string[] = [] // includes both missing and okay chunks, just to make it faster
     const missingChunkKeys: string[] = []
 
     for (let x = -15; x <= 15; x++) {
@@ -100,17 +100,27 @@ export class RoomID extends PacketInterceptor {
         const pos = new Vec3(x, 0, z).add(startPos)
         const [chunkX, chunkZ] = [pos.x >> 4, pos.z >> 4]
         const chunkKey = `${chunkX},${chunkZ}`
-        if (checkedChunks.includes(chunkKey)) {
-          continue
-        }
 
-        checkedChunks.push(chunkKey)
+        if (missingChunkKeys.includes(chunkKey)) continue
 
         const blockAtPos = World.getBlock(pos.x, pos.y, pos.z)
-        if (blockAtPos === null) {
+        if (blockAtPos === null && !missingChunkKeys.includes(chunkKey)) {
           missingChunkKeys.push(chunkKey)
         }
       }
+    }
+
+
+    // Detect missing 0,0 and 1,0 chunks if the start room was filled in
+    const blockAtStart = World.getBlock(startPos.x, startPos.y, startPos.z + 1)
+    const otherBlockAtStart = World.getBlock(startPos.x - 3, startPos.y, startPos.z + 1)
+
+    if (blockAtStart?.name === "air" && !missingChunkKeys.includes("1,0")) {
+      missingChunkKeys.push("1,0")
+    }
+
+    if (otherBlockAtStart?.name === "air" && !missingChunkKeys.includes("0,0")) {
+      missingChunkKeys.push("0,0")
     }
 
     return missingChunkKeys
@@ -135,7 +145,8 @@ export class RoomID extends PacketInterceptor {
     for (const chunkKey of missingChunks) {
       const [chunkX, chunkZ] = chunkKey.split(",").map(Number)
 
-      const chunk = new Chunk()
+      const worldChunk = World.getChunk(chunkX * 16, chunkZ * 16)
+      const chunk = worldChunk || new Chunk()
 
       const columns = roomBlocks[this.currentRoomName].columns
       const allBlocks = { ...columns, ...bridgeBlocks, ...(this.currentRoomNumber !== 0 ? previousBridgeBlocks : {}) }
@@ -176,6 +187,10 @@ export class RoomID extends PacketInterceptor {
         chunkData: dump
       }
       packets.push(data)
+
+      if (!worldChunk) {
+        World.setChunk(chunkKey, chunk)
+      }
     }
 
     return packets
@@ -191,6 +206,83 @@ export class RoomID extends PacketInterceptor {
           message: JSON.stringify({ text: `§9§lFixed a missing chunk!` }),
           position: 0
         })
+      }
+    }
+  }
+
+  /**
+   * Detects and fixes any missing chunks that belong to the start room
+   * @param toClient
+   * @private
+   */
+  private detectFixStartRoomChunks(toClient: ServerClient) {
+    const chunksToCheck = ["0,0", "1,0"]
+    const needsFixing = []
+
+    for (const chunkKey of chunksToCheck) {
+      const [x,z] = chunkKey.split(",").map(Number).map(num => num * 16)
+
+      const block = World.getBlock(x, 0, z)
+      if (block === null) {
+        needsFixing.push(chunkKey)
+      }
+    }
+
+    if (needsFixing.length > 0) {
+      const startPos = new Vec3(0, 0, 1).add(this.startPosition.clone()) // bruh
+
+      for (const chunkKey of needsFixing) {
+        const [chunkX, chunkZ] = chunkKey.split(",").map(Number)
+
+        const worldChunk = World.getChunk(chunkX * 16, chunkZ * 16)
+        const chunk = worldChunk || new Chunk()
+        const columns = startRoomBlocks.columns
+
+        for (const [columnKey, yMap] of Object.entries(columns)) {
+          const [x, z] = columnKey.split(",").map(Number)
+          const columnPos = new Vec3(x, 0, z).add(startPos)
+
+          if (columnPos.x >> 4 !== chunkX || columnPos.z >> 4 !== chunkZ) {
+            continue // this column doesn't belong in this chunk
+          }
+
+          const localX = columnPos.x & 0xF
+          const localZ = columnPos.z & 0xF
+
+          for (const [yStr, block] of Object.entries(yMap)) {
+            const y = parseInt(yStr, 10) + columnPos.y
+
+            const [blockName, blockData] = block.split(":")
+
+            const blockDef = registry.blocksByName[blockName]
+            if (!blockDef) {
+              Logger.error(`Block ${blockName} not found in registry`)
+              continue
+            }
+
+            const blockID = blockDef.id
+            chunk.setBlockType(new Vec3(localX, y, localZ), blockID)
+            chunk.setBlockData(new Vec3(localX, y, localZ), blockData ? parseInt(blockData, 10) : 0)
+          }
+        }
+
+        const dump = chunk.dump()
+        const data = {
+          x: chunkX,
+          z: chunkZ,
+          groundUp: true,
+          bitMap: 0xFFFF,
+          chunkData: dump
+        }
+        toClient.write("map_chunk", data)
+        toClient.write("chat", {
+          message: JSON.stringify({ text: `§9§lFixed a missing chunk in the start room!` }),
+          position: 0
+        })
+
+        if (!worldChunk) {
+          World.setChunk(chunkKey, chunk)
+        }
       }
     }
   }
@@ -327,6 +419,8 @@ export class RoomID extends PacketInterceptor {
     if (packet.meta.name === "chat") {
       const text = constructChatMessage(packet.data.message)
       if ((text.startsWith(" ") && (text.trim().startsWith("Opponents:") || text.trim().startsWith("Opponent:")))) {
+        this.detectFixStartRoomChunks(packet.toClient)
+
         this.currentRoomNumber = 0
         const detectedRoom = this.detectRoom()
 
