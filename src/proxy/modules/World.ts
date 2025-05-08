@@ -71,6 +71,15 @@ export class World extends PacketInterceptor {
     return World.chunks.get(chunkKey)
   }
 
+  /**
+   * Set the chunk in a given position in the internal chunk map.
+   * @param chunkKey
+   * @param chunk
+   */
+  static setChunk(chunkKey: string, chunk: typeof Chunk) {
+    World.chunks.set(chunkKey, chunk)
+  }
+
   incomingPacket(packet: Packet): Packet {
     if (packet.meta.name === "respawn") {
       // On switching dimensions / worlds, clear chunks
