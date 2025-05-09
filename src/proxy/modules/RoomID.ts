@@ -11,6 +11,7 @@ import { generateUniqueBlocks } from "../data/uniqueBlocks"
 import { roomBlocks } from "../data/roomBlocks"
 import { bridgeBlocks, previousBridgeBlocks } from "../data/bridgeBlocks"
 import { startRoomBlocks } from "../data/startRoom"
+import { finishRoomBlocks } from "../data/finishRoom"
 
 const registry = require("prismarine-registry")("1.8.9")
 const Chunk = require("prismarine-chunk")(registry)
@@ -301,6 +302,100 @@ export class RoomID extends PacketInterceptor {
     }
   }
 
+  /**
+   * Detects and fixes any missing chunks that belong to the finish room
+   * @param toClient
+   * @private
+   */
+  private detectFixFinishRoomChunks(toClient: ServerClient) {
+    const zAddend = 57 * 8
+    const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
+
+    const needsFixing: string[] = []
+
+    for (const [colKey, yMap] of Object.entries(finishRoomBlocks.columns)) {
+      const [x, z] = colKey.split(",").map(Number)
+
+      const worldX = startPos.x + x
+      const worldZ = startPos.z + z
+
+      const chunkX = worldX >> 4
+      const chunkZ = worldZ >> 4
+      const chunkKey = `${chunkX},${chunkZ}`
+
+      if (needsFixing.includes(chunkKey)) continue
+
+      for (const [yOffset, block] of Object.entries(yMap)) {
+        const y = parseInt(yOffset, 10) + startPos.y
+
+        const actual = World.getBlock(worldX, y, worldZ)
+
+        if (!actual || actual.name === "air") {
+          needsFixing.push(chunkKey)
+          break
+        }
+      }
+    }
+
+    if (needsFixing.length === 0) return
+
+    // 5) Repair each missing chunk exactly as before
+    for (const chunkKey of needsFixing) {
+      console.log(`Fixing chunk ${chunkKey}`)
+      const [chunkX, chunkZ] = chunkKey.split(',').map(Number)
+      const worldChunk = World.getChunk(chunkX * 16, chunkZ * 16)
+      const chunk = worldChunk ?? new Chunk()
+
+      for (const [colKey, yMap] of Object.entries(finishRoomBlocks.columns)) {
+        const [xOffStr, zOffStr] = colKey.split(',')
+        const xOff = parseInt(xOffStr, 10)
+        const zOff = parseInt(zOffStr, 10)
+
+        const worldX = startPos.x + xOff
+        const worldZ = startPos.z + zOff
+        if ((worldX >> 4) !== chunkX || (worldZ >> 4) !== chunkZ) continue
+
+        const localX = worldX & 0xF
+        const localZ = worldZ & 0xF
+
+        for (const [yOffStr, blockDesc] of Object.entries(yMap)) {
+          const yOff = parseInt(yOffStr, 10)
+          const worldY = startPos.y + yOff
+
+          const [name, meta] = blockDesc.split(':')
+          const def = registry.blocksByName[name]
+          if (!def) {
+            Logger.error(`Unknown block "${name}" in finishRoomBlocks`)
+            continue;
+          }
+
+          chunk.setBlockType(new Vec3(localX, worldY, localZ), def.id)
+          chunk.setBlockData(new Vec3(localX, worldY, localZ), meta ? parseInt(meta, 10) : 0)
+        }
+      }
+
+      console.log("Writing chunk packet")
+      // push the repaired chunk to the client
+      toClient.write('map_chunk', {
+        x: chunkX,
+        z: chunkZ,
+        groundUp: true,
+        bitMap: 0xFFFF,
+        chunkData: chunk.dump()
+      })
+      toClient.write('chat', {
+        message: JSON.stringify({
+          text: `§9§lFixed a missing chunk in the finish room!`
+        }),
+        position: 0
+      })
+
+      // store it if it wasn’t loaded
+      if (!worldChunk) {
+        World.setChunk(chunkKey, chunk)
+      }
+    }
+  }
 
   /**
    * Sends the seed to Parkour Duels Bot and returns the optimal result
@@ -480,6 +575,13 @@ export class RoomID extends PacketInterceptor {
             Logger.debug(`You are in room ${this.currentRoomName} (${this.currentRoomNumber})`)
           } else {
             Logger.error("There was an error identifying which room you are in! Please report this.")
+          }
+
+          console.log(this.currentRoomNumber)
+
+          if (this.currentRoomNumber == 7) {
+            console.log("Checking for missing chunks in the finish room...")
+            this.detectFixFinishRoomChunks(packet.toClient)
           }
         }
       }
