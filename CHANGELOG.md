@@ -1,3 +1,17 @@
+# [1.19.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.18.0...v1.19.0) (2025-05-09)
+
+
+### Bug Fixes
+
+* make all trapdoors vertical when filling in ([40fc815](https://github.com/Real-Parkour-Helper/pkdutils/commit/40fc8158474b4812d6c54a8ac7597f552a52fac0))
+* smarter missing chunk detection which prevents some bugs ([174d749](https://github.com/Real-Parkour-Helper/pkdutils/commit/174d749ac1a9487bbdc214a4ff8c67258a9003f3))
+
+
+### Features
+
+* fix finish room missing chunks ([c793c34](https://github.com/Real-Parkour-Helper/pkdutils/commit/c793c347e6bb6b17be6eac576fb55387ff4ec372))
+* use present loaded chunks if they exist, detect and fix missing start room chunks ([5dd94eb](https://github.com/Real-Parkour-Helper/pkdutils/commit/5dd94ebdb44cc0ff6a75d9bf393b1737e22cf857))
+
 # [1.18.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.17.1...v1.18.0) (2025-04-20)
 
 
