@@ -1,3 +1,11 @@
+## [1.19.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.19.0...v1.19.1) (2025-05-12)
+
+
+### Bug Fixes
+
+* don't always replace that one finish room chunk ([90117df](https://github.com/Real-Parkour-Helper/pkdutils/commit/90117dfe216cdfa14bcc2741e403a346d97128a5))
+* remove incorrect blocks in rooms causing chunks to be reconstructed even when they weren't missing and set slab metadata for quartz temple and fence squeeze ([8ca2098](https://github.com/Real-Parkour-Helper/pkdutils/commit/8ca20988a1f4ea2836dae18d68098453da2b2cff))
+
 # [1.19.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.18.0...v1.19.0) (2025-05-09)
 
 
