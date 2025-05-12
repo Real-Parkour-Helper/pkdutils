@@ -54,10 +54,6 @@ export class RoomID extends PacketInterceptor {
       return { found: false, match: false }
     }
 
-    if (blockAtPos.name !== block.block_name) {
-      console.log(`Block at ${blockPos} is ${blockAtPos.name}, expected ${block.block_name}`)
-    }
-
     return { found: true, match: blockAtPos.name === block.block_name }
   }
 
@@ -320,6 +316,8 @@ export class RoomID extends PacketInterceptor {
     for (const [colKey, yMap] of Object.entries(finishRoomBlocks.columns)) {
       const [x, z] = colKey.split(",").map(Number)
 
+      if (z == -5) continue // skip this wall section because wall patterns can be different
+
       const worldX = startPos.x + x
       const worldZ = startPos.z + z
 
@@ -345,7 +343,6 @@ export class RoomID extends PacketInterceptor {
 
     // 5) Repair each missing chunk exactly as before
     for (const chunkKey of needsFixing) {
-      console.log(`Fixing chunk ${chunkKey}`)
       const [chunkX, chunkZ] = chunkKey.split(',').map(Number)
       const worldChunk = World.getChunk(chunkX * 16, chunkZ * 16)
       const chunk = worldChunk ?? new Chunk()
@@ -580,8 +577,6 @@ export class RoomID extends PacketInterceptor {
           } else {
             Logger.error("There was an error identifying which room you are in! Please report this.")
           }
-
-          console.log(this.currentRoomNumber)
 
           if (this.currentRoomNumber == 7) {
             console.log("Checking for missing chunks in the finish room...")
