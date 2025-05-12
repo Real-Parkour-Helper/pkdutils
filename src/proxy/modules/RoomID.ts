@@ -54,6 +54,10 @@ export class RoomID extends PacketInterceptor {
       return { found: false, match: false }
     }
 
+    if (blockAtPos.name !== block.block_name) {
+      console.log(`Block at ${blockPos} is ${blockAtPos.name}, expected ${block.block_name}`)
+    }
+
     return { found: true, match: blockAtPos.name === block.block_name }
   }
 
@@ -91,7 +95,7 @@ export class RoomID extends PacketInterceptor {
       return []
     }
 
-    const zAddend = 57 * this.currentRoomNumber
+    const zAddend = 57 * this.currentRoomNumber + 1
     const startPos = new Vec3(0, 0, zAddend).add(this.startPosition)
 
     const missingChunkKeys = new Set<string>()
@@ -107,7 +111,7 @@ export class RoomID extends PacketInterceptor {
 
         const absX = startPos.x + xOff
         const absY = startPos.y + yOff
-        const absZ = startPos.z + zOff + 1
+        const absZ = startPos.z + zOff
 
         const chunkX = absX >> 4
         const chunkZ = absZ >> 4
@@ -127,8 +131,8 @@ export class RoomID extends PacketInterceptor {
 
 
     // Detect missing 0,0 and 1,0 chunks if the start room was filled in
-    const blockAtStart = World.getBlock(startPos.x, startPos.y, startPos.z + 1)
-    const otherBlockAtStart = World.getBlock(startPos.x - 3, startPos.y, startPos.z + 1)
+    const blockAtStart = World.getBlock(startPos.x, startPos.y, startPos.z)
+    const otherBlockAtStart = World.getBlock(startPos.x - 3, startPos.y, startPos.z)
 
     if (blockAtStart?.name === "air" && !missingChunkKeys.has("1,0")) {
       missingChunkKeys.add("1,0")
