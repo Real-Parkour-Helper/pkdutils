@@ -41,6 +41,13 @@ export class GuiWindow extends EventEmitter {
   }
 
   /**
+   * Clear the items in the window
+   */
+  clearItems() {
+    this.items = []
+  }
+
+  /**
    * Generates the packet to open the window.
    * This does not include the items inside the window.
    */

@@ -125,6 +125,7 @@ export class Proxy {
         positionTracker,
         timer,
         new BoostInterceptor(splitTracker, positionTracker, timer),
+        new TicTacToe(positionTracker)
       ],
     );
   }
@@ -139,7 +140,6 @@ export class Proxy {
         new ParkourCommand(),
         new ScoreboardCommand(),
         new ToggleAutosaveCommand(),
-        new TicTacToe()
       ],
     );
   }

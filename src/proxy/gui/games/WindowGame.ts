@@ -8,9 +8,9 @@ import { repeatObj } from "../../util/generalUtils"
 import { Logger } from "../../../util/Logger"
 
 export abstract class WindowGame extends Command {
-  private window: GuiWindow | undefined
+  protected window: GuiWindow | undefined
   private backgroundItem = new GuiItem(160, "", 1, 15)
-  private readonly items: GuiItem[] = []
+  protected readonly items: GuiItem[] = []
 
   protected constructor(game: string, commands: string[], private slots: number = 54) {
     super(game, "1.0.0", commands, [])
@@ -43,18 +43,15 @@ export abstract class WindowGame extends Command {
       try {
         const item = this.window?.getItem(slot)
         if (item) {
-          this.onClick(slot)
-          const updatedItems = this.window?.itemsPacket()
-          if (updatedItems) {
-            packet.toClient.write("window_items", updatedItems)
-            packet.toClient.write("set_slot", {
-              windowId: -1,         // -1 = cursor
-              slot: -1,             // Also -1 = cursor
-              item: {
-                blockId: -1
-              }            // Clear the cursor
-            })
-          }
+          this.onClick(slot, packet)
+          this.resendItems(packet)
+          packet.toClient.write("set_slot", {
+            windowId: -1,
+            slot: -1,
+            item: {
+              blockId: -1
+            }
+          })
           return packet
         } else {
           return packet
@@ -78,7 +75,21 @@ export abstract class WindowGame extends Command {
     return super.outgoingPacket(packet)
   }
 
+  protected resendItems(packet: Packet) {
+    if (!this.window) {
+      return
+    }
+    this.window.clearItems()
+    for (const i of this.items) {
+      this.window.addItem(i)
+    }
+    const updatedItems = this.window?.itemsPacket()
+    if (updatedItems) {
+      packet.toClient.write("window_items", updatedItems)
+    }
+  }
+
   protected abstract setupInventory(): void
-  protected abstract onClick(slot: number): void
+  protected abstract onClick(slot: number, packet: Packet): void
   protected abstract onClose(): void
 }

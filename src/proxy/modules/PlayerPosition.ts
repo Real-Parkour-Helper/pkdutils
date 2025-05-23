@@ -23,7 +23,7 @@ export class PlayerPosition extends PacketInterceptor {
   }
 
   constructor() {
-    super("PlayerPosition", "1.0.0");
+    super("PlayerPosition", "1.0.0", false);
   }
 
   incomingPacket(packet: Packet): Packet {
