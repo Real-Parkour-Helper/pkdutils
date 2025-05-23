@@ -1,3 +1,19 @@
+# [1.20.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.19.1...v1.20.0) (2025-05-23)
+
+
+### Bug Fixes
+
+* HELP ([0fa897e](https://github.com/Real-Parkour-Helper/pkdutils/commit/0fa897eed1cf951ec1cdc7c49392b09b63f953b5))
+* playing once and re-opening no longer broken ([758736b](https://github.com/Real-Parkour-Helper/pkdutils/commit/758736b24305b6643e16c194dcf03adf186b0d52))
+
+
+### Features
+
+* connect 4 game ([5a7c56c](https://github.com/Real-Parkour-Helper/pkdutils/commit/5a7c56c0a3083518cbee370c3db1609adf14cab7))
+* minesweeper game ([336b90a](https://github.com/Real-Parkour-Helper/pkdutils/commit/336b90a07961b524c84335e9aeec0cb98b6095c6))
+* solitaire game ([c17370f](https://github.com/Real-Parkour-Helper/pkdutils/commit/c17370f7f64a2363b071d1160d45f25cdfb73311))
+* tic tac toe minigame ([c9f3d51](https://github.com/Real-Parkour-Helper/pkdutils/commit/c9f3d51fe427f2791daf8fd0884460bb30a88f71))
+
 ## [1.19.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.19.0...v1.19.1) (2025-05-12)
 
 
