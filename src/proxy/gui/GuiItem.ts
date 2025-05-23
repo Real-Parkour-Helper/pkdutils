@@ -14,8 +14,8 @@ export class GuiItem {
    * Convert the GuiItem to a JSON string
    * to be sent in a packet
    */
-  toJSON(): string {
-    return JSON.stringify({
+  toJSON(): object {
+    return {
       blockId: this.id,
       itemCount: this.count,
       itemDamage: this.damage,
@@ -34,7 +34,7 @@ export class GuiItem {
           }
         }
       }
-    })
+    }
   }
 
 }
