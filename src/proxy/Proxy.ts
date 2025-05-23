@@ -18,6 +18,7 @@ import { ToggleAutosaveCommand } from "./commands/ToggleAutosaveCommand"
 import { TicTacToe } from "./gui/games/TicTacToe"
 import { Connect4 } from "./gui/games/Connect4"
 import { Minesweeper } from "./gui/games/Minesweeper"
+import { Solitaire } from "./gui/games/Solitaire"
 
 /**
  * Proxy class
@@ -126,7 +127,8 @@ export class Proxy {
         new BoostInterceptor(splitTracker, positionTracker, timer),
         new TicTacToe(positionTracker),
         new Connect4(positionTracker),
-        new Minesweeper(positionTracker)
+        new Minesweeper(positionTracker),
+        new Solitaire(positionTracker)
       ],
     );
   }

@@ -12,14 +12,14 @@ export abstract class WindowGame extends Command {
   private backgroundItem = new GuiItem(160, "", 1, 15)
   protected readonly items: GuiItem[] = []
 
-  protected constructor(game: string, commands: string[], private slots: number = 54) {
+  protected constructor(game: string, commands: string[], protected slots: number = 54) {
     super(game, "1.0.0", commands, [])
     this.items = repeatObj(this.backgroundItem, slots)
   }
 
   protected handle(args: string[], packet: Packet) {
     this.window = GuiWindowManager.createWindow(GuiWindowType.CHEST, this.name, this.slots)
-    this.setupInventory()
+    this.setupInventory(packet)
 
     for (const i of this.items) {
       this.window?.addItem(i)
@@ -89,7 +89,7 @@ export abstract class WindowGame extends Command {
     }
   }
 
-  protected abstract setupInventory(): void
+  protected abstract setupInventory(packet: Packet): void
   protected abstract onClick(slot: number, packet: Packet): void
   protected abstract onClose(): void
 }
