@@ -19,6 +19,7 @@ import { GuiWindowManager } from "./gui/GuiWindowManager"
 import { GuiWindowType } from "./gui/GuiWindowType"
 import { GuiItem } from "./gui/GuiItem"
 import { TicTacToe } from "./gui/games/TicTacToe"
+import { Connect4 } from "./gui/games/Connect4"
 
 /**
  * Proxy class
@@ -125,7 +126,8 @@ export class Proxy {
         positionTracker,
         timer,
         new BoostInterceptor(splitTracker, positionTracker, timer),
-        new TicTacToe(positionTracker)
+        new TicTacToe(positionTracker),
+        new Connect4(positionTracker)
       ],
     );
   }
