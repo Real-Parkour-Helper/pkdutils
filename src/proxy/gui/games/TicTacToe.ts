@@ -72,6 +72,8 @@ export class TicTacToe extends WindowGame {
   }
 
   protected setupInventory() {
+    this.board.fill(null)
+
     // Setup the inventory for TicTacToe
     const yourColorItem = new GuiItem(35, "You", 1, 4)
     const opponentColorItem = new GuiItem(35, "Opponent", 1, 14)
