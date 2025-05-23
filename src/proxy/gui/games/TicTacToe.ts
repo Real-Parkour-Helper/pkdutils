@@ -21,15 +21,8 @@ export class TicTacToe extends WindowGame {
 
     this.board[idx] = "X"
     this.items[slot] = new GuiItem(35, "You", 1, 4)
-
     if (this.checkWin(this.board, "X")) {
       this.displayResult(packet.toClient, "You win!")
-      this.reset()
-      return
-    }
-
-    if (!this.board.includes(null)) {
-      this.displayResult(packet.toClient, "It's a draw!")
       packet.toClient.write("named_sound_effect", {
         soundName: "random.levelup",
         x: this.playerPosition.pos.x,
@@ -37,6 +30,20 @@ export class TicTacToe extends WindowGame {
         z: this.playerPosition.pos.z,
         volume: 10.0,
         pitch: 47,
+      })
+      this.reset()
+      return
+    }
+
+    if (!this.board.includes(null)) {
+      this.displayResult(packet.toClient, "It's a draw!")
+      packet.toClient.write("named_sound_effect", {
+        soundName: "random.click",
+        x: this.playerPosition.pos.x,
+        y: this.playerPosition.pos.y,
+        z: this.playerPosition.pos.z,
+        volume: 10.0,
+        pitch: 37,
       })
       this.reset()
       return
