@@ -30,6 +30,17 @@ export class GuiWindow extends EventEmitter {
   }
 
   /**
+   * Get an item from the window
+   * @param slot
+   */
+  getItem(slot: number): GuiItem | undefined {
+    if (slot < 0 || slot >= this.items.length) {
+      throw new Error("Slot out of bounds")
+    }
+    return this.items[slot]
+  }
+
+  /**
    * Generates the packet to open the window.
    * This does not include the items inside the window.
    */
@@ -50,5 +61,9 @@ export class GuiWindow extends EventEmitter {
       windowId: this.id,
       items: this.items.map(item => item.toJSON())
     }
+  }
+
+  getId(): number {
+    return this.id
   }
 }

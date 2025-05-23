@@ -1,20 +1,24 @@
-import { InstantConnectProxy } from "prismarine-proxy";
-import { PacketMeta, ServerClient, Client } from "minecraft-protocol";
-import { Logger } from "../util/Logger";
-import { favicon } from "./favicon";
-import { PacketInterceptor } from "./packet/PacketInterceptor";
-import { Packet } from "./packet/Packet";
-import { SplitScoreboard } from "./modules/SplitScoreboard";
-import { World } from "./modules/World";
-import { RoomID } from "./modules/RoomID";
-import { SplitTracker } from "./modules/SplitTracker";
-import { BoostInterceptor } from "./modules/BoostInterceptor";
-import { PlayerPosition } from "./modules/PlayerPosition";
-import { Timer } from "./modules/Timer";
-import { Location } from "./modules/Location";
-import { ParkourCommand } from "./commands/ParkourCommand";
-import { ScoreboardCommand } from "./commands/ScoreboardCommand";
-import { ToggleAutosaveCommand } from "./commands/ToggleAutosaveCommand";
+import { InstantConnectProxy } from "prismarine-proxy"
+import { Client, PacketMeta, ServerClient } from "minecraft-protocol"
+import { Logger } from "../util/Logger"
+import { favicon } from "./favicon"
+import { PacketInterceptor } from "./packet/PacketInterceptor"
+import { Packet } from "./packet/Packet"
+import { SplitScoreboard } from "./modules/SplitScoreboard"
+import { World } from "./modules/World"
+import { RoomID } from "./modules/RoomID"
+import { SplitTracker } from "./modules/SplitTracker"
+import { BoostInterceptor } from "./modules/BoostInterceptor"
+import { PlayerPosition } from "./modules/PlayerPosition"
+import { Timer } from "./modules/Timer"
+import { Location } from "./modules/Location"
+import { ParkourCommand } from "./commands/ParkourCommand"
+import { ScoreboardCommand } from "./commands/ScoreboardCommand"
+import { ToggleAutosaveCommand } from "./commands/ToggleAutosaveCommand"
+import { GuiWindowManager } from "./gui/GuiWindowManager"
+import { GuiWindowType } from "./gui/GuiWindowType"
+import { GuiItem } from "./gui/GuiItem"
+import { TicTacToe } from "./gui/games/TicTacToe"
 
 /**
  * Proxy class
@@ -135,6 +139,7 @@ export class Proxy {
         new ParkourCommand(),
         new ScoreboardCommand(),
         new ToggleAutosaveCommand(),
+        new TicTacToe()
       ],
     );
   }
