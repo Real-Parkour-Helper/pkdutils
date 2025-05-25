@@ -140,7 +140,7 @@ export class SplitScoreboard extends PacketInterceptor {
 
         const timeDiff = playerData.time - firstPlayerTime;
 
-        let displayValue = `#${checkpoint} ${this.formatTimeDiff(timeDiff)}`;
+        let displayValue = `#${checkpoint} ${timeDiff < 60000 ? (timeDiff < 10000 ? "§a" : "§c") : "§4"}${this.formatTimeDiff(timeDiff)}`;
 
         if (playerData.completed) {
           displayValue = "§e§lDONE";
