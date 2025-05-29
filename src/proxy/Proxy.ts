@@ -19,6 +19,7 @@ import { TicTacToe } from "./gui/games/TicTacToe"
 import { Connect4 } from "./gui/games/Connect4"
 import { Minesweeper } from "./gui/games/Minesweeper"
 import { Solitaire } from "./gui/games/Solitaire"
+import { WsBackend } from "./backend/WsBackend"
 
 /**
  * Proxy class
@@ -28,6 +29,7 @@ import { Solitaire } from "./gui/games/Solitaire"
 export class Proxy {
   private proxy: InstantConnectProxy;
   private interceptors: PacketInterceptor[] = [];
+  private wsBackend: WsBackend | undefined
 
   constructor() {
     this.proxy = new InstantConnectProxy({
@@ -52,6 +54,20 @@ export class Proxy {
 
     this.registerInterceptors();
     this.registerCommands();
+
+    this.proxy.on("start", (client) => {
+      if (this.wsBackend === undefined) {
+        this.wsBackend = new WsBackend(client, client.username)
+        this.interceptors.push(this.wsBackend)
+      }
+    })
+
+    this.proxy.on("end", () => {
+      if (this.wsBackend) {
+        this.wsBackend.close()
+        this.wsBackend = undefined;
+      }
+    })
 
     this.proxy.on(
       "incoming",
