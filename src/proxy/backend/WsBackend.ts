@@ -29,7 +29,7 @@ export class WsBackend extends PacketInterceptor {
     super("WsBackend", "1.0.0", false, [])
     this.client = client
     this.username = username
-    this.ws = new WebSocket("ws://localhost:3000")
+    this.ws = new WebSocket("wss://api.parkourduels.com/johnchat")
 
     this.ws.on("open", () => {
       Logger.info("Connected to WS server!")
