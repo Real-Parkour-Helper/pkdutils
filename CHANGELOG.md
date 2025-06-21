@@ -1,3 +1,12 @@
+# [1.21.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.20.0...v1.21.0) (2025-06-21)
+
+
+### Features
+
+* show checkpoint + time diff for each player ([1ab48e0](https://github.com/Real-Parkour-Helper/pkdutils/commit/1ab48e0b6de5bcb1515c30276a4e2ee0bd81d104))
+* show winstreak on custom scoreboard ([47f75ee](https://github.com/Real-Parkour-Helper/pkdutils/commit/47f75ee276066f2655f58bdfd47c12d16427a1d3))
+* websocket backend for JOHN CHAT ([94ccd89](https://github.com/Real-Parkour-Helper/pkdutils/commit/94ccd895c48a75cb77578a47fe5b44f63f84305d))
+
 # [1.20.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.19.1...v1.20.0) (2025-05-23)
 
 
