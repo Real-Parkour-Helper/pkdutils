@@ -140,13 +140,8 @@ export class SplitScoreboard extends PacketInterceptor {
 
         const timeDiff = playerData.time - firstPlayerTime;
 
-        let displayValue = this.formatTimeDiff(timeDiff);
-        if (
-          this.config.get("scoreboard", "splits" as ScoreboardMode) ==
-          "allplayers"
-        ) {
-          displayValue = `#${checkpoint}`;
-        }
+        let displayValue = `#${checkpoint} ${timeDiff < 60000 ? (timeDiff < 10000 ? "§a" : "§c") : "§4"}${this.formatTimeDiff(timeDiff)}`;
+
         if (playerData.completed) {
           displayValue = "§e§lDONE";
         }
@@ -235,12 +230,20 @@ export class SplitScoreboard extends PacketInterceptor {
       toClient.write("scoreboard_team", data);
     }
 
+
+    let ws = -1
+    for (const packet of this.defaultScoreboardItems) {
+      if ((packet.data.prefix + packet.data.suffix).includes("Mode Winstreak")) {
+        ws = parseInt(packet.data.suffix.substring(2))
+      }
+    }
+
     toClient.write("scoreboard_team", {
       team: "team_1",
       mode: 2,
       name: "team_1",
-      prefix: `Room: ${this.roomTracker.GetCurrentRoomNumber + 1}`,
-      suffix: "",
+      prefix: `Room: §6${this.roomTracker.GetCurrentRoomNumber + 1}`,
+      suffix: ` §rWs: §6${ws === -1 ? "N/A" : ws}`,
       friendlyFire: 3,
       nameTagVisibility: "always",
       color: 15,
