@@ -25,6 +25,8 @@ export class WsBackend extends PacketInterceptor {
   private allowDMs: boolean = true
   private showMessages: boolean = true
 
+  private onlineUsers: string[] = [];
+
   constructor(client: ServerClient, username: string) {
     super("WsBackend", "1.0.0", false, [])
     this.client = client
@@ -75,13 +77,21 @@ export class WsBackend extends PacketInterceptor {
           }
         } else if (msg.op === "presence") {
           const prefix = "§9John§r §8>"
+
           if (msg.type === "join") {
             this.writeChat(`${prefix} §d${msg.username}§r joined.`)
+            if (!this.onlineUsers.includes(msg.username)) {
+              this.onlineUsers.push(msg.username)
+            }
+
           } else if (msg.type === "leave") {
             this.writeChat(`${prefix} §d${msg.username}§r left.`)
+            this.onlineUsers = this.onlineUsers.filter(u => u !== msg.username)
+
           } else if (msg.type === "online") {
-            const list = msg.others
-              .map((user: { username: string }) => `§d${user.username}§r`)
+            this.onlineUsers = msg.others.map((user: { username: string }) => user.username)
+            const list = this.onlineUsers
+              .map(u => `§d${u}§r`)
               .join(", ")
             this.writeChat(`${prefix} Online: ${list}`)
           }
@@ -145,6 +155,17 @@ export class WsBackend extends PacketInterceptor {
           packet.cancelled = true
           this.channel = ChatChannel.JOHN
           this.writeChat("§aYou are now in the §6JOHN§a channel.")
+        }
+      }
+
+      if (packet.data.message.startsWith("/j online")) {
+        packet.cancelled = true;
+        const prefix = "§9John§r §8>";
+        if (this.onlineUsers.length === 0) {
+          this.writeChat(`${prefix} No online user info available.`);
+        } else {
+          const list = this.onlineUsers.map(u => `§d${u}§r`).join(", ");
+          this.writeChat(`${prefix} Online: ${list}`);
         }
       }
 
