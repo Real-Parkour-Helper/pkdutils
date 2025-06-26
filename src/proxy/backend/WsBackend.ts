@@ -143,7 +143,7 @@ export class WsBackend extends PacketInterceptor {
 
   protected outgoingPacket(packet: Packet): Packet {
     if (packet.meta.name === "chat") {
-      if (packet.data.message.startsWith("/chat")) {
+      if (packet.data.message.toLowerCase().startsWith("/chat")) {
         const channel = packet.data.message.split(" ")[1]?.toLowerCase()
         if (channel === "all" || channel === "a") {
           this.channel = ChatChannel.ALL
@@ -158,7 +158,9 @@ export class WsBackend extends PacketInterceptor {
         }
       }
 
-      if (packet.data.message.startsWith("/j online")) {
+      if (packet.data.message.toLowerCase().startsWith("/j online") || 
+      packet.data.message.toLowerCase().startsWith("/j list") || 
+      packet.data.message.toLowerCase().startsWith("/jl") ) {
         packet.cancelled = true;
         const prefix = "§9John§r §8>";
         if (this.onlineUsers.length === 0) {
@@ -169,7 +171,7 @@ export class WsBackend extends PacketInterceptor {
         }
       }
 
-      if (packet.data.message.startsWith("/jc")) {
+      if (packet.data.message.toLowerCase().startsWith("/jc")) {
         packet.cancelled = true
         const message = packet.data.message.slice(4).trim()
         this.ws.send(JSON.stringify({
@@ -179,7 +181,7 @@ export class WsBackend extends PacketInterceptor {
         }))
       }
 
-      if (packet.data.message.startsWith("/j dm")) {
+      if (packet.data.message.toLowerCase().startsWith("/j dm")) {
         packet.cancelled = true
         const parts = packet.data.message.split(" ")
         if (parts.length < 4) {
@@ -196,7 +198,7 @@ export class WsBackend extends PacketInterceptor {
         }))
       }
 
-      if (packet.data.message.startsWith("/j r") || packet.data.message.startsWith("/j reply")) {
+      if (packet.data.message.toLowerCase().startsWith("/j r") || packet.data.message.toLowerCase().startsWith("/j reply")) {
         packet.cancelled = true
         if (this.lastDMFrom) {
           const parts = packet.data.message.split(" ")
@@ -224,12 +226,12 @@ export class WsBackend extends PacketInterceptor {
         }))
       }
 
-      if (packet.data.message.startsWith("/j toggledm") || packet.data.message.startsWith("/john toggledm")) {
+      if (packet.data.message.toLowerCase().startsWith("/j toggledm") || packet.data.message.toLowerCase().startsWith("/john toggledm")) {
         packet.cancelled = true
         this.allowDMs = !this.allowDMs
         const status = this.allowDMs ? "§2enabled" : "§cdisabled"
         this.writeChat(`§aJohn DMs are now ${status}.`)
-      } else if (packet.data.message.startsWith("/j toggle") || packet.data.message.startsWith("/john toggle")) {
+      } else if (packet.data.message.toLowerCase().startsWith("/j toggle") || packet.data.message.toLowerCase().startsWith("/john toggle")) {
         packet.cancelled = true
         this.showMessages = !this.showMessages
         const status = this.showMessages ? "§2enabled" : "§cdisabled"
