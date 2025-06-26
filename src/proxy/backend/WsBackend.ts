@@ -25,6 +25,8 @@ export class WsBackend extends PacketInterceptor {
   private allowDMs: boolean = true
   private showMessages: boolean = true
 
+  private onlineUsers: string[] = [];
+
   constructor(client: ServerClient, username: string) {
     super("WsBackend", "1.0.0", false, [])
     this.client = client
@@ -75,13 +77,21 @@ export class WsBackend extends PacketInterceptor {
           }
         } else if (msg.op === "presence") {
           const prefix = "§9John§r §8>"
+
           if (msg.type === "join") {
             this.writeChat(`${prefix} §d${msg.username}§r joined.`)
+            if (!this.onlineUsers.includes(msg.username)) {
+              this.onlineUsers.push(msg.username)
+            }
+
           } else if (msg.type === "leave") {
             this.writeChat(`${prefix} §d${msg.username}§r left.`)
+            this.onlineUsers = this.onlineUsers.filter(u => u !== msg.username)
+
           } else if (msg.type === "online") {
-            const list = msg.others
-              .map((user: { username: string }) => `§d${user.username}§r`)
+            this.onlineUsers = msg.others.map((user: { username: string }) => user.username)
+            const list = this.onlineUsers
+              .map(u => `§d${u}§r`)
               .join(", ")
             this.writeChat(`${prefix} Online: ${list}`)
           }
@@ -133,7 +143,7 @@ export class WsBackend extends PacketInterceptor {
 
   protected outgoingPacket(packet: Packet): Packet {
     if (packet.meta.name === "chat") {
-      if (packet.data.message.startsWith("/chat")) {
+      if (packet.data.message.toLowerCase().startsWith("/chat")) {
         const channel = packet.data.message.split(" ")[1]?.toLowerCase()
         if (channel === "all" || channel === "a") {
           this.channel = ChatChannel.ALL
@@ -148,7 +158,20 @@ export class WsBackend extends PacketInterceptor {
         }
       }
 
-      if (packet.data.message.startsWith("/jc")) {
+      if (packet.data.message.toLowerCase().startsWith("/j online") || 
+      packet.data.message.toLowerCase().startsWith("/j list") || 
+      packet.data.message.toLowerCase().startsWith("/jl") ) {
+        packet.cancelled = true;
+        const prefix = "§9John§r §8>";
+        if (this.onlineUsers.length === 0) {
+          this.writeChat(`${prefix} No online user info available.`);
+        } else {
+          const list = this.onlineUsers.map(u => `§d${u}§r`).join(", ");
+          this.writeChat(`${prefix} Online: ${list}`);
+        }
+      }
+
+      if (packet.data.message.toLowerCase().startsWith("/jc")) {
         packet.cancelled = true
         const message = packet.data.message.slice(4).trim()
         this.ws.send(JSON.stringify({
@@ -158,7 +181,7 @@ export class WsBackend extends PacketInterceptor {
         }))
       }
 
-      if (packet.data.message.startsWith("/j dm")) {
+      if (packet.data.message.toLowerCase().startsWith("/j dm")) {
         packet.cancelled = true
         const parts = packet.data.message.split(" ")
         if (parts.length < 4) {
@@ -175,7 +198,7 @@ export class WsBackend extends PacketInterceptor {
         }))
       }
 
-      if (packet.data.message.startsWith("/j r") || packet.data.message.startsWith("/j reply")) {
+      if (packet.data.message.toLowerCase().startsWith("/j r") || packet.data.message.toLowerCase().startsWith("/j reply")) {
         packet.cancelled = true
         if (this.lastDMFrom) {
           const parts = packet.data.message.split(" ")
@@ -203,12 +226,12 @@ export class WsBackend extends PacketInterceptor {
         }))
       }
 
-      if (packet.data.message.startsWith("/j toggledm") || packet.data.message.startsWith("/john toggledm")) {
+      if (packet.data.message.toLowerCase().startsWith("/j toggledm") || packet.data.message.toLowerCase().startsWith("/john toggledm")) {
         packet.cancelled = true
         this.allowDMs = !this.allowDMs
         const status = this.allowDMs ? "§2enabled" : "§cdisabled"
         this.writeChat(`§aJohn DMs are now ${status}.`)
-      } else if (packet.data.message.startsWith("/j toggle") || packet.data.message.startsWith("/john toggle")) {
+      } else if (packet.data.message.toLowerCase().startsWith("/j toggle") || packet.data.message.toLowerCase().startsWith("/john toggle")) {
         packet.cancelled = true
         this.showMessages = !this.showMessages
         const status = this.showMessages ? "§2enabled" : "§cdisabled"
