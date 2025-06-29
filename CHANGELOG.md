@@ -1,3 +1,10 @@
+## [1.21.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.21.0...v1.21.1) (2025-06-26)
+
+
+### Bug Fixes
+
+* command syntax ([43b15f8](https://github.com/Real-Parkour-Helper/pkdutils/commit/43b15f8b10c6f5d8a4ed2b6bfdb041349b49ad6c))
+
 # [1.21.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.20.0...v1.21.0) (2025-06-21)
 
 
