@@ -139,7 +139,7 @@ export class SplitTracker {
       }
 
       console.log(
-        `Finished room ${roomName} (${boostStratName}) in ${roomSplit}, boosted at ${this.boostTime}`,
+        `Finished room ${roomName} (${boostStratName}) in ${roomSplit}, boosted at ${this.boostTime - this.roomEnterSplit}`,
         isFirstPB
           ? bold(yellow("FIRST COMPLETION"))
           : diff < 0
