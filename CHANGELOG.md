@@ -1,3 +1,10 @@
+## [1.21.2](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.21.1...v1.21.2) (2025-07-09)
+
+
+### Bug Fixes
+
+* 'boosted at' time ([2486cb4](https://github.com/Real-Parkour-Helper/pkdutils/commit/2486cb45efcc3cccd0d56376aced6bdf732bb094))
+
 ## [1.21.1](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.21.0...v1.21.1) (2025-06-26)
 
 
