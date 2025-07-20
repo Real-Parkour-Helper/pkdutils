@@ -10,7 +10,11 @@ createApp(App)
   .use(createPinia())
   .mount("#app")
 
-import { useConfigStore } from '@/stores/configStore'
+import { useConfigStore } from "@/stores/configStore"
+import { useSplitsStore } from "@/stores/splitsStore"
 
 const configStore = useConfigStore()
+const splitsStore = useSplitsStore()
+
 configStore.init()
+splitsStore.init()
