@@ -1,4 +1,5 @@
 import type { SplitsData } from "../../proxy/data/defaultSplits.ts"
+import type { Run } from "../../proxy/modules/RunStore.ts"
 
 export class WsHandler extends EventTarget {
   private static instance: WsHandler | null = null
@@ -15,6 +16,7 @@ export class WsHandler extends EventTarget {
 
   private _config: Record<string, any> = {}
   private _splits: SplitsData = {}
+  private _runs: Run[] = []
 
   private constructor() {
     super()
@@ -39,6 +41,10 @@ export class WsHandler extends EventTarget {
         case "splits":
           this._splits = message.data
           this.dispatchEvent(new CustomEvent("splits", { detail: this._splits }))
+          break
+        case "runs":
+          this._runs = message.data
+          this.dispatchEvent(new CustomEvent("runs", { detail: this._runs }))
           break
         default:
           console.warn("Unknown message type:", message.type)

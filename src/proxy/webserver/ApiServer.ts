@@ -7,6 +7,7 @@ import path from "path"
 import { Logger } from "../../util/Logger"
 import { Config } from "../config/Config"
 import { SplitTracker } from "../modules/SplitTracker"
+import { RunStore } from "../modules/RunStore"
 
 export class ApiServer {
   private static instance: ApiServer | null = null
@@ -19,6 +20,7 @@ export class ApiServer {
 
   private config = Config.getInstance()
   private splitTracker = SplitTracker.getInstance()
+  private runStore = RunStore.getInstance()
 
   public static getInstance() {
     if (!ApiServer.instance) {
@@ -59,9 +61,11 @@ export class ApiServer {
 
       const config = this.config.getAll()
       const splits = this.splitTracker.splitsData
+      const runs = this.runStore.getRuns()
 
       ws.send(JSON.stringify({ type: "config", data: config }))
       ws.send(JSON.stringify({ type: "splits", data: splits }))
+      ws.send(JSON.stringify({ type: "runs", data: runs }))
 
       ws.on("message", message => {
         Logger.debug("Received message from WebSocket:", message)

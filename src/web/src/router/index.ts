@@ -2,6 +2,7 @@ import { createWebHistory, createRouter } from "vue-router"
 
 import ConfigView from "@/views/Config.vue"
 import SplitsView from "@/views/Splits.vue"
+import RunsView from "@/views/Runs.vue"
 
 const routes = [
   {
@@ -15,6 +16,10 @@ const routes = [
   {
     path: "/splits",
     component: SplitsView
+  },
+  {
+    path: "/runs",
+    component: RunsView
   }
 ]
 

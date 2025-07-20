@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Separator } from "@/components/ui/separator"
-import { Settings, Timer } from "lucide-vue-next"
+import { Settings, Timer, Flag } from "lucide-vue-next"
 
 import { useColorMode } from "@vueuse/core"
 
@@ -33,6 +33,15 @@ mode.value = "auto"
         >
           <Timer class="w-4 h-4"/>
           Splits
+        </RouterLink>
+
+        <RouterLink
+            to="/runs"
+            class="flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-muted"
+            active-class="bg-muted"
+        >
+          <Flag class="w-4 h-4"/>
+          Runs
         </RouterLink>
       </nav>
     </div>

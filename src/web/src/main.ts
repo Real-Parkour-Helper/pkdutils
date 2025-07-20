@@ -12,9 +12,12 @@ createApp(App)
 
 import { useConfigStore } from "@/stores/configStore"
 import { useSplitsStore } from "@/stores/splitsStore"
+import { useRunStore } from "@/stores/runStore.ts"
 
 const configStore = useConfigStore()
 const splitsStore = useSplitsStore()
+const runStore = useRunStore()
 
 configStore.init()
 splitsStore.init()
+runStore.init()
