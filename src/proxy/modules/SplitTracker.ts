@@ -15,6 +15,8 @@ import { bold, blueBright, yellow, red, magenta } from "chalk";
  * SplitTracker class for parsing and storing player's splits
  */
 export class SplitTracker {
+  private static instance: SplitTracker | null = null;
+
   private config: Config = Config.getInstance();
   private roomEnterSplit: number = 0;
   private hasBoosted: boolean = false;
@@ -30,13 +32,20 @@ export class SplitTracker {
   private checkpointRegex =
     /CHECKPOINT! You reached checkpoint (\d+) in ([\d:\.]+)!/;
 
-  constructor(dataFolder: string = "./data") {
+  private constructor(dataFolder: string = "./data") {
     if (!fs.existsSync(dataFolder)) {
       fs.mkdirSync(dataFolder, { recursive: true });
     }
 
     this.splitsFilePath = path.join(dataFolder, "splits.json");
     this.loadSplits();
+  }
+
+  public static getInstance(dataFolder: string = "./data"): SplitTracker {
+    if (!SplitTracker.instance) {
+      SplitTracker.instance = new SplitTracker(dataFolder);
+    }
+    return SplitTracker.instance;
   }
 
   resetTracker() {
