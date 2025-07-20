@@ -21,6 +21,7 @@ import { Minesweeper } from "./gui/games/Minesweeper"
 import { Solitaire } from "./gui/games/Solitaire"
 import { WsBackend } from "./backend/WsBackend"
 import { ApiServer } from "./webserver/ApiServer"
+import { RunStore } from "./modules/RunStore"
 
 /**
  * Proxy class

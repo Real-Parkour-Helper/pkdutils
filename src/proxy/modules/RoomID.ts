@@ -12,6 +12,9 @@ import { roomBlocks } from "../data/roomBlocks"
 import { bridgeBlocks, previousBridgeBlocks } from "../data/bridgeBlocks"
 import { startRoomBlocks } from "../data/startRoom"
 import { finishRoomBlocks } from "../data/finishRoom"
+import { Run, RunStore } from "./RunStore"
+import { splitToMs } from "../util/splitUtils"
+import { Location } from "./Location"
 
 const registry = require("prismarine-registry")("1.8.9")
 const Chunk = require("prismarine-chunk")(registry)
@@ -29,6 +32,7 @@ export class RoomID extends PacketInterceptor {
   private rooms: RoomName[] = []
   private splitTracker: SplitTracker
   private calcUrl = "https://wired-cod-kindly.ngrok-free.app/api/pkdutils/calc"
+  private runStartedAt: number | null = null
 
   get GetCurrentRoomNumber(): number {
     return this.currentRoomNumber;
@@ -402,7 +406,7 @@ export class RoomID extends PacketInterceptor {
    * Sends the seed to Parkour Duels Bot and returns the optimal result
    * @private
    */
-  private calcSeed(seed: RoomName[], toClient: ServerClient) {
+  private calcSeed(seed: RoomName[], time: number, toClient: ServerClient) {
     const content = {
       rooms: seed,
       splits: this.splitTracker.splitsData
@@ -417,6 +421,19 @@ export class RoomID extends PacketInterceptor {
       if (!toClient) {
         return;
       }
+
+      const run: Run = {
+        seed: Location.locationData?.server || "unknown",
+        rooms: seed,
+        splits: this.splitTracker.currentSplits,
+        totalTime: time,
+        calc: data,
+        timestamp: this.runStartedAt
+      }
+
+      console.log(run)
+      RunStore.getInstance().addRun(run)
+
       toClient.write("chat", {
         message: JSON.stringify({ text: `§9Perfect boost time: §a${data.best.boost_time}` }),
         position: 0
@@ -524,11 +541,14 @@ export class RoomID extends PacketInterceptor {
       this.rooms = []
       this.splitTracker.resetTracker();
       this.currentRoomStartPosition = this.startPosition;
+      this.runStartedAt = null;
     }
 
     if (packet.meta.name === "chat") {
       const text = constructChatMessage(packet.data.message)
       if ((text.startsWith(" ") && (text.trim().startsWith("Opponents:") || text.trim().startsWith("Opponent:")))) {
+        this.runStartedAt = Date.now()
+
         this.detectFixStartRoomChunks(packet.toClient)
 
         this.currentRoomNumber = 0
@@ -546,7 +566,15 @@ export class RoomID extends PacketInterceptor {
       }
 
       if (text.startsWith("COMPLETED! You completed the parkour")) {
-        this.calcSeed(this.rooms, packet.toClient)
+        const match = text.match(/(\d{2}:\d{2}\.\d{3})/)
+        if (!match) {
+          Logger.error("Could not find completed regex match in text: " + text)
+          return packet
+        }
+        console.log(match)
+        const time = splitToMs(match[1])
+        console.log(time)
+        this.calcSeed(this.rooms, time, packet.toClient)
       }
 
       const match = text.match(this.checkpointRegex)
@@ -572,7 +600,7 @@ export class RoomID extends PacketInterceptor {
             this.currentRoomName = detectedRoom.room
             this.currentRoomStartPosition = detectedRoom.startPos
             this.rooms.push(this.currentRoomName)
-           this.detectAndFixChunks(packet.toClient)
+            this.detectAndFixChunks(packet.toClient)
             Logger.debug(`You are in room ${this.currentRoomName} (${this.currentRoomNumber})`)
           } else {
             Logger.error("There was an error identifying which room you are in! Please report this.")

@@ -10,6 +10,7 @@ import { defaultSplits, SplitsData } from "../data/defaultSplits";
 import { titleCase } from "../util/generalUtils";
 import { Config } from "../config/Config";
 import { bold, blueBright, yellow, red, magenta } from "chalk";
+import { Split } from "./RunStore"
 
 /**
  * SplitTracker class for parsing and storing player's splits
@@ -25,8 +26,14 @@ export class SplitTracker {
   private _splitsData: SplitsData = {};
   private splitsFilePath: string;
 
+  private currentRunSplits: Split[] = []
+
   get splitsData(): SplitsData {
     return this._splitsData;
+  }
+
+  get currentSplits(): Split[] {
+    return this.currentRunSplits;
   }
 
   private checkpointRegex =
@@ -53,6 +60,7 @@ export class SplitTracker {
     this.hasBoosted = false;
     this.boostPosition = null;
     this.boostTime = 0;
+    this.currentRunSplits = [];
     this.loadSplits();
   }
 
@@ -163,6 +171,13 @@ export class SplitTracker {
         message: `{ "text": "${text}" }`,
         position: 0,
       });
+
+      this.currentRunSplits.push({
+        room: roomName,
+        time: roomSplit,
+        boostStrat: boostStratName,
+        boostTime: this.boostTime - this.roomEnterSplit,
+      });
     } else {
       const diff = this.isBoostlessPersonalBest(roomName, roomSplit);
 
@@ -189,6 +204,13 @@ export class SplitTracker {
       toClient.write("chat", {
         message: `{ "text": "${text}" }`,
         position: 0,
+      });
+
+      this.currentRunSplits.push({
+        room: roomName,
+        time: roomSplit,
+        boostStrat: null,
+        boostTime: null,
       });
     }
 

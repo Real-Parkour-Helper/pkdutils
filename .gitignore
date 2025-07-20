@@ -13,6 +13,7 @@ lerna-debug.log*
 data/*.json
 logs/*.txt
 config.json
+runs.json
 
 build
 
