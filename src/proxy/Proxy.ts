@@ -20,6 +20,7 @@ import { Connect4 } from "./gui/games/Connect4"
 import { Minesweeper } from "./gui/games/Minesweeper"
 import { Solitaire } from "./gui/games/Solitaire"
 import { WsBackend } from "./backend/WsBackend"
+import { ApiServer } from "./webserver/ApiServer"
 
 /**
  * Proxy class
@@ -121,6 +122,7 @@ export class Proxy {
     );
 
     Logger.info(`Proxy started! Listening on port 25565.`);
+    ApiServer.getInstance().init(3000)
   }
 
   /**
@@ -129,7 +131,7 @@ export class Proxy {
    */
   private registerInterceptors() {
     const positionTracker = new PlayerPosition();
-    const splitTracker = new SplitTracker();
+    const splitTracker = SplitTracker.getInstance(); // this will be called first in ApiServer.ts fyi
     const roomTracker = new RoomID(splitTracker);
     const timer = new Timer();
     this.interceptors.push(

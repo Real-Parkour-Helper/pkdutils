@@ -65,4 +65,8 @@ export class Config {
     this.configData[key] = value;
     this.saveConfig();
   }
+
+  public getAll(): Record<string, any> {
+    return this.configData;
+  }
 }
