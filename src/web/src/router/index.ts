@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router"
 
 import ConfigView from "@/views/Config.vue"
+import SplitsView from "@/views/Splits.vue"
 
 const routes = [
   {
@@ -10,6 +11,10 @@ const routes = [
   {
     path: "/config",
     component: ConfigView
+  },
+  {
+    path: "/splits",
+    component: SplitsView
   }
 ]
 
