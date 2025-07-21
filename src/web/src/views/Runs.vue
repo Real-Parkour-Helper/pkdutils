@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ColumnDef } from "@tanstack/vue-table"
-import { h, computed } from "vue"
+import { h, computed, ref } from "vue"
 import { Button } from "@/components/ui/button"
 import DataTable from "@/components/ui/data-table.vue"
 import { ArrowUpDown, Info, Share } from "lucide-vue-next"
@@ -8,7 +8,9 @@ import type { Run } from "../../../proxy/modules/RunStore"
 
 import { useRunStore } from "@/stores/runStore"
 import { LineChart } from "@/components/ui/chart-line"
+import { ChartLine, ChartBar } from "lucide-vue-next"
 import RunTooltip from "@/components/RunTooltip.vue"
+import { BarChart } from "@/components/ui/chart-bar"
 
 const runStore = useRunStore()
 
@@ -214,6 +216,62 @@ const chartColors = [
   "rgb(16, 185, 129)",   // green for boostPB
   "rgb(239, 68, 68)",    // red for boostlessPB
 ]
+
+function secToBucketLabel(sec: number): string {
+  const m = Math.floor(sec / 60)
+  const s = Math.floor(sec % 60)
+  return `< ${m}:${s.toString().padStart(2, "0")}`
+}
+
+/** ceil to next multiple of 5 */
+const ceilTo5 = (v: number) => Math.ceil(v / 5) * 5
+
+/** Histogram buckets (grouped bar) */
+const barChartData = computed(() => {
+  if (!runStore.runs || runStore.runs.length === 0) return []
+
+  // ----- collect raw times (in seconds) ---------------------------------- //
+  const timesSec = runStore.runs.map(r => r.totalTime / 1000)
+
+  // Lowest time → round UP to next 5 s ( e.g. 128.4 → 130 )
+  const firstUpper = ceilTo5(Math.min(...timesSec))
+  const lastUpper  = ceilTo5(Math.max(...timesSec))
+
+  // Build bucket upper-bounds [firstUpper, firstUpper+5, …, lastUpper]
+  const uppers: number[] = []
+  for (let u = firstUpper; u <= lastUpper; u += 5) uppers.push(u)
+
+  // Pre-initialise result objects
+  const buckets = uppers.map(u => ({
+    bucket: secToBucketLabel(u), // x-axis label
+    Boost: 0,                    // boosted-run count
+    Boostless: 0,                // boost-less-run count
+  }))
+
+  // ----- classify every run --------------------------------------------- //
+  runStore.runs.forEach(run => {
+    const t = run.totalTime / 1000
+    const bucketIdx = uppers.findIndex(u => t <= u)
+    if (bucketIdx === -1) return                                // shouldn’t happen
+
+    const hadBoost = run.splits.some(s => s.boostStrat !== null)
+    const isBoostless = run.splits.every(s => s.boostStrat === null)
+
+    if (hadBoost)     buckets[bucketIdx].Boost     += 1
+    if (isBoostless)  buckets[bucketIdx].Boostless += 1
+  })
+
+  return buckets
+})
+
+const barChartCategories = ["Boost", "Boostless"]
+const barChartIndex      = "bucket"
+const barChartColors     = [
+  "rgb(16, 185, 129)", // green  – Boost
+  "rgb(239, 68, 68)",  // red    – Boostless
+]
+
+const currentChart = ref("line")
 </script>
 
 <template>
@@ -221,13 +279,34 @@ const chartColors = [
     Runs
   </h3>
 
-  <LineChart
-      :data="chartData"
-      :categories="chartCategories"
-      :index="chartIndex"
-      :colors="chartColors"
-      :custom-tooltip="RunTooltip"
-  />
+  <div class="flex flex-row w-full">
+    <LineChart
+        v-if="currentChart === 'line'"
+        :data="chartData"
+        :categories="chartCategories"
+        :index="chartIndex"
+        :colors="chartColors"
+        :custom-tooltip="RunTooltip"
+    />
+    <BarChart
+        v-if="currentChart === 'bar'"
+        :data="barChartData"
+        :categories="barChartCategories"
+        :index="barChartIndex"
+        :colors="barChartColors"
+        type="grouped"
+    />
+    <div class="p-2 flex flex-col bg-gray-950 border-1 border-gray-700 h-fit rounded-lg">
+      <Button size="icon" :class="`m-1 bg-${currentChart === 'line' ? 'white' : 'transparent'} duration-200`"
+              @click="currentChart = 'line'">
+        <ChartLine :class="`w-4 h-4 text-${currentChart === 'line' ? 'black' : 'white'}`"/>
+      </Button>
+      <Button size="icon" :class="`m-1 bg-${currentChart === 'bar' ? 'white' : 'transparent'} duration-200`"
+              @click="currentChart = 'bar'">
+        <ChartBar :class="`w-4 h-4 text-${currentChart === 'bar' ? 'black' : 'white'}`"/>
+      </Button>
+    </div>
+  </div>
 
   <DataTable v-if="runStore.runs" :columns="columns" :data="runStore.runs"/>
   <span v-else class="text-muted">No runs recorded.</span>
