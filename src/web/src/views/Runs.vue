@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { ColumnDef } from "@tanstack/vue-table"
-import { h } from "vue"
+import { h, computed } from "vue"
 import { Button } from "@/components/ui/button"
 import DataTable from "@/components/ui/data-table.vue"
 import { ArrowUpDown, Info, Share } from "lucide-vue-next"
 import type { Run } from "../../../proxy/modules/RunStore"
 
 import { useRunStore } from "@/stores/runStore"
+import { LineChart } from "@/components/ui/chart-line"
+import RunTooltip from "@/components/RunTooltip.vue"
 
 const runStore = useRunStore()
 
@@ -169,12 +171,63 @@ const columns: ColumnDef<Run>[] = [
     enableSorting: false,
   },
 ]
+
+const chartData = computed(() => {
+  if (!runStore.runs) return []
+
+  const runsSorted = [...runStore.runs].sort((a, b) => a.timestamp - b.timestamp)
+
+  let bestBoost: number | null = null
+  let bestBoostless: number | null = null
+
+  return runsSorted.map(run => {
+    const hadBoost = run.splits.some(split => split.boostStrat !== null)
+    const isBoostless = run.splits.every(split => split.boostStrat === null)
+
+    const time = run.totalTime / 1000
+
+    if (hadBoost) {
+      if (bestBoost === null || time < bestBoost) {
+        bestBoost = time
+      }
+    }
+
+    if (isBoostless) {
+      if (bestBoostless === null || time < bestBoostless) {
+        bestBoostless = time
+      }
+    }
+
+    return {
+      date: new Date(run.timestamp).toLocaleDateString(),
+      runTime: time,
+      boostPB: bestBoost,
+      boostlessPB: bestBoostless,
+    }
+  })
+})
+
+const chartCategories = ["runTime", "boostPB", "boostlessPB"]
+const chartIndex = "date"
+const chartColors = [
+  "rgb(59, 130, 246)",   // blue for runTime
+  "rgb(16, 185, 129)",   // green for boostPB
+  "rgb(239, 68, 68)",    // red for boostlessPB
+]
 </script>
 
 <template>
   <h3 class="text-2xl font-semibold flex items-center gap-2 h-10 mb-2">
     Runs
   </h3>
+
+  <LineChart
+      :data="chartData"
+      :categories="chartCategories"
+      :index="chartIndex"
+      :colors="chartColors"
+      :custom-tooltip="RunTooltip"
+  />
 
   <DataTable v-if="runStore.runs" :columns="columns" :data="runStore.runs"/>
   <span v-else class="text-muted">No runs recorded.</span>
