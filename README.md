@@ -13,6 +13,7 @@ A Minecraft proxy server that enhances the Hypixel Parkour Duels experience with
   - Advanced splits showing time differences between players
 - **Seed Calculation**: Calculates and recommends the best boost strategies for the seed you played
 - **Chunk error correction**: Automatically detects and fixes missing chunks
+- **Room translation**: Translate internal room names to normal names when using `/pr` command
 ## Usage
 
 - Head to [releases](https://github.com/Real-Parkour-Helper/pkdutils/releases) and download the latest version for your operating system.

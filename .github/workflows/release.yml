@@ -42,6 +42,7 @@ jobs:
 
       - name: Create standalone executable
         run: |
+          npm install -g typescript
           npm install -g pkg
           npm run compile pkdutils-${{ matrix.platform }}${{ matrix.extension }}
 
