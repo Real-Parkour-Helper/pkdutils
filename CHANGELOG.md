@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.21.2...v1.22.0) (2025-08-06)
+
+
+### Features
+
+* add room name replacement for /pr command ([1fd9d69](https://github.com/Real-Parkour-Helper/pkdutils/commit/1fd9d69dd382e1d95e7b454b534c1ff6a54b83af))
+
 ## [1.21.2](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.21.1...v1.21.2) (2025-07-09)
 
 
