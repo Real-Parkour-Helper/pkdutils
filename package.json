@@ -37,11 +37,12 @@
     "prismarine-chunk": "^1.38.1",
     "prismarine-proxy": "^1.1.4",
     "prismarine-registry": "^1.11.0",
+    "tsc": "^2.0.4",
     "ws": "^8.18.2"
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",
     "cross-env": "^7.0.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.9.2"
   }
 }
