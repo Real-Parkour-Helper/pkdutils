@@ -22,12 +22,14 @@ export abstract class PacketInterceptor {
 
   private readonly inGameOnly: boolean
   private readonly alwaysPackets: string[] = []
+  private readonly alwaysOn: boolean
 
-  protected constructor(name: string, version: string, runInGameOnly: boolean = true, alwaysPackets: string[] = []) {
+  protected constructor(name: string, version: string, runInGameOnly: boolean = true, alwaysPackets: string[] = [], alwaysOn: boolean = false) {
     this._name = name
     this._version = version
     this.inGameOnly = runInGameOnly
     this.alwaysPackets = alwaysPackets || []
+    this.alwaysOn = alwaysOn
 
     Logger.info(`${name} v${version} instantiated!`)
   }
@@ -38,7 +40,9 @@ export abstract class PacketInterceptor {
    * @param packet
    */
   in(packet: Packet): Packet {
-    if (this.inGameOnly && getLocation?.()?.locationData?.mode === "DUELS_PARKOUR_EIGHT") {
+    if (this.alwaysOn && getLocation?.()?.locationData?.mode === "DUELS_PARKOUR_EIGHT") {
+        return this.incomingPacket(packet)
+    } else if (this.inGameOnly && getLocation?.()?.locationData?.mode === "DUELS_PARKOUR_EIGHT" && getLocation?.()?.locationData?.map === "Castle") {
       return this.incomingPacket(packet)
     } else if (!this.inGameOnly) {
       return this.incomingPacket(packet)
@@ -54,7 +58,9 @@ export abstract class PacketInterceptor {
    * @param packet
    */
   out(packet: Packet): Packet {
-    if (this.inGameOnly && getLocation?.()?.locationData?.mode === "DUELS_PARKOUR_EIGHT") {
+    if (this.alwaysOn && getLocation?.()?.locationData?.mode === "DUELS_PARKOUR_EIGHT") {
+        return this.incomingPacket(packet)
+    } else if (this.inGameOnly && getLocation?.()?.locationData?.mode === "DUELS_PARKOUR_EIGHT" && getLocation?.()?.locationData?.map === "Castle") {
       return this.outgoingPacket(packet)
     } else if (!this.inGameOnly) {
       return this.outgoingPacket(packet)

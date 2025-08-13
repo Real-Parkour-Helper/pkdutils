@@ -42,7 +42,7 @@ export class SplitScoreboard extends PacketInterceptor {
   };
 
   constructor(roomTracker: RoomID) {
-    super("SplitScoreboard", "1.0.0", true, ["respawn"]);
+    super("SplitScoreboard", "1.0.0", true, ["respawn"], true);
     this.roomTracker = roomTracker;
   }
 
