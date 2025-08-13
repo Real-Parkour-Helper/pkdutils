@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.22.0...v1.23.0) (2025-08-13)
+
+
+### Features
+
+* make pkdutils not break atlantis map ([81df46e](https://github.com/Real-Parkour-Helper/pkdutils/commit/81df46e1c87532f85f6572b76b4ab826724ff4c0))
+
 # [1.22.0](https://github.com/Real-Parkour-Helper/pkdutils/compare/v1.21.2...v1.22.0) (2025-08-06)
 
 
